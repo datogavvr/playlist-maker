@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Плейлисты</string>
-
     <string name="search">Поиск</string>
     <string name="playlists">Плейлисты</string>
     <string name="favorite">Избранное</string>
