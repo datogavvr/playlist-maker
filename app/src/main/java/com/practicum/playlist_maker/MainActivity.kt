@@ -28,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -118,71 +119,74 @@ fun GenericButton(
 fun MainScreen() {
     val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.primary)
-    ) {
-        Text(
+    Scaffold { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(12.dp),
-            text = stringResource(R.string.app_name),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .background(
-                    MaterialTheme.colorScheme.background,
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                )
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(color = MaterialTheme.colorScheme.primary)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(12.dp),
+                text = stringResource(R.string.app_name),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(
+                        MaterialTheme.colorScheme.background,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                    )
             ) {
-                GenericButton(
-                    icon = Icons.Filled.Search,
-                    nameButton = stringResource(R.string.search),
-                    onClick = {
-                        val intent = Intent(context, SearchActivity::class.java)
-                        context.startActivity(intent)
-                    }
-                )
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    GenericButton(
+                        icon = Icons.Filled.Search,
+                        nameButton = stringResource(R.string.search),
+                        onClick = {
+                            val intent = Intent(context, SearchActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                GenericButton(
-                    icon = Icons.Filled.LibraryMusic,
-                    nameButton = stringResource(R.string.playlists),
-                    onClick = {},
-                    showToast = true
-                )
+                    GenericButton(
+                        icon = Icons.Filled.LibraryMusic,
+                        nameButton = stringResource(R.string.playlists),
+                        onClick = {},
+                        showToast = true
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                GenericButton(
-                    icon = Icons.Filled.FavoriteBorder,
-                    nameButton = stringResource(R.string.favorite),
-                    onClick = {},
-                    showToast = true
-                )
+                    GenericButton(
+                        icon = Icons.Filled.FavoriteBorder,
+                        nameButton = stringResource(R.string.favorite),
+                        onClick = {},
+                        showToast = true
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                GenericButton(
-                    icon = Icons.Filled.Settings,
-                    nameButton = stringResource(R.string.settings),
-                    onClick = {
-                        val intent = Intent(context, SettingsActivity::class.java)
-                        context.startActivity(intent)
-                    }
-                )
+                    GenericButton(
+                        icon = Icons.Filled.Settings,
+                        nameButton = stringResource(R.string.settings),
+                        onClick = {
+                            val intent = Intent(context, SettingsActivity::class.java)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
             }
         }
     }
