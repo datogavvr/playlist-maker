@@ -7,7 +7,7 @@ class PlaylistMakerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // Инициализируем менеджер тем при запуске приложения
+        // инициализируем менеджер тем при запуске приложения
         ThemeManager.initialize(this)
     }
 }

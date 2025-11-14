@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.edit
@@ -16,12 +17,12 @@ object ThemeManager {
     private const val PREF_NAME = "theme_preferences"
     private const val KEY_THEME_MODE = "theme_mode"
 
-    // Режимы темы
+    // режимы темы
     const val THEME_SYSTEM = 0
     const val THEME_LIGHT = 1
     const val THEME_DARK = 2
 
-    var currentTheme by mutableStateOf(THEME_SYSTEM)
+    var currentTheme by mutableIntStateOf(THEME_SYSTEM)
         private set
 
     fun initialize(context: Context) {
