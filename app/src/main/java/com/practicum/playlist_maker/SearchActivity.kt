@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker
 
+import PlaylistHost
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -48,29 +47,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 
 class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             PlaylistmakerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    SearchScreen()
-                }
+                val navController = rememberNavController()
+                PlaylistHost(navController = navController)
             }
         }
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen() {
+fun SearchScreen(onBack: () -> Unit = {}) {
     val searchText = remember { mutableStateOf("") }
-    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val borderColor = MaterialTheme.colorScheme.surfaceVariant
 
@@ -85,9 +82,7 @@ fun SearchScreen() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        (context as? ComponentActivity)?.finish()
-                    }) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Назад",
@@ -206,6 +201,7 @@ fun SearchScreen() {
         }
     }
 }
+
 
 @Preview
 @Composable

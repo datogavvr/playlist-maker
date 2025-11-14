@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker
 
+import PlaylistHost
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,7 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -48,26 +48,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 import androidx.core.net.toUri
+import androidx.navigation.compose.rememberNavController
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PlaylistmakerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    SettingsScreen()
-                }
+                val navController = rememberNavController()
+                PlaylistHost(navController = navController)
             }
         }
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onBack: () -> Unit = {}) {
     val context = LocalContext.current
     val currentTheme = remember { androidx.compose.runtime.mutableIntStateOf(ThemeManager.currentTheme) }
     val borderColor = MaterialTheme.colorScheme.surfaceVariant
@@ -84,9 +82,7 @@ fun SettingsScreen() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        (context as? ComponentActivity)?.finish()
-                    }) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Назад",

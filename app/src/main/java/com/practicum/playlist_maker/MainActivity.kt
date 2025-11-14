@@ -1,11 +1,10 @@
 package com.practicum.playlist_maker
 
-import android.content.Intent
+import PlaylistHost
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +28,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,24 +41,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             PlaylistmakerTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainScreen()
-                }
+                val navController = rememberNavController()
+                PlaylistHost(navController = navController)
             }
         }
     }
 }
+
 
 @Composable
 fun GenericButton(
@@ -116,9 +111,10 @@ fun GenericButton(
 }
 
 @Composable
-fun MainScreen() {
-    val context = LocalContext.current
-
+fun MainScreen(
+    onSearchClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {}
+) {
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -152,10 +148,7 @@ fun MainScreen() {
                     GenericButton(
                         icon = Icons.Filled.Search,
                         nameButton = stringResource(R.string.search),
-                        onClick = {
-                            val intent = Intent(context, SearchActivity::class.java)
-                            context.startActivity(intent)
-                        }
+                        onClick = onSearchClick
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -181,10 +174,7 @@ fun MainScreen() {
                     GenericButton(
                         icon = Icons.Filled.Settings,
                         nameButton = stringResource(R.string.settings),
-                        onClick = {
-                            val intent = Intent(context, SettingsActivity::class.java)
-                            context.startActivity(intent)
-                        }
+                        onClick = onSettingsClick
                     )
                 }
             }
