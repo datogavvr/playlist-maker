@@ -1,4 +1,4 @@
-package com.practicum.playlist_maker
+package com.practicum.playlist_maker.ui.activity
 
 import PlaylistHost
 import android.os.Bundle
@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 
 class MainActivity : ComponentActivity() {

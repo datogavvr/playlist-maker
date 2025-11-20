@@ -1,4 +1,4 @@
-package com.practicum.playlist_maker
+package com.practicum.playlist_maker.ui.activity
 
 import PlaylistHost
 import android.content.Intent
@@ -36,9 +36,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 import androidx.core.net.toUri
 import androidx.navigation.compose.rememberNavController
+import com.practicum.playlist_maker.R
+import com.practicum.playlist_maker.ThemeManager
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +71,7 @@ class SettingsActivity : ComponentActivity() {
 @Composable
 fun SettingsScreen(onBack: () -> Unit = {}) {
     val context = LocalContext.current
-    val currentTheme = remember { androidx.compose.runtime.mutableIntStateOf(ThemeManager.currentTheme) }
+    val currentTheme = remember { mutableIntStateOf(ThemeManager.currentTheme) }
     val borderColor = MaterialTheme.colorScheme.surfaceVariant
 
     Scaffold(
@@ -245,7 +249,7 @@ fun ThemeOptionButton(
 @Composable
 fun SettingsActionButton(
     text: String,
-    rightIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    rightIcon: ImageVector,
     onClick: () -> Unit
 ) {
     Button(
