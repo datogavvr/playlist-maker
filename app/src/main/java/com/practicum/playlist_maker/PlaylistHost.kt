@@ -3,17 +3,17 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.practicum.playlist_maker.MainScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.practicum.playlist_maker.ui.activity.MainScreen
 import com.practicum.playlist_maker.Screen
-import com.practicum.playlist_maker.SearchScreen
-import com.practicum.playlist_maker.SettingsScreen
+import com.practicum.playlist_maker.ui.activity.SearchScreen
+import com.practicum.playlist_maker.ui.activity.SettingsScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PlaylistHost(navController: NavHostController) {
-    AnimatedNavHost(
+    NavHost(
         navController = navController,
         startDestination = Screen.MAIN.name,
         enterTransition = {

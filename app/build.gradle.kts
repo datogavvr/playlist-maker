@@ -42,7 +42,8 @@ android {
 }
 
 dependencies {
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.36.0")
+    implementation(libs.androidx.core.ktx.v1160)
+    implementation(libs.accompanist.navigation.animation)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -57,6 +58,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.tracing.perfetto.handshake)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.material3)
+    implementation(libs.koin.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
