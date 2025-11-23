@@ -15,31 +15,31 @@ import androidx.core.view.WindowCompat
 import com.practicum.playlist_maker.ThemeManager
 
 private val DarkColorScheme = darkColorScheme(
-    primary = LightBlue40,
+    primary = MyLightBlue,
     onPrimary = Color.White,
-    primaryContainer = Black80,
+    primaryContainer = MyBlack,
     onPrimaryContainer = Color.White,
 
-    secondary = Grey80,
+    secondary = MyGray,
     onSecondary = Color.White,
-    secondaryContainer = Grey80,
+    secondaryContainer = MyGray,
     onSecondaryContainer = Color.White,
 
-    tertiary = LightGray80,
+    tertiary = MyGray,
     onTertiary = Color.White,
-    tertiaryContainer = LightGray80,
+    tertiaryContainer = MyGray,
     onTertiaryContainer = Color.White,
 
-    background = Black80,
+    background = MyBlack,
     onBackground = Color.White,
 
-    surface = Black80,
+    surface = MyBlack,
     onSurface = Color.White,
-    surfaceVariant = LightGray80,
-    onSurfaceVariant = Color.White,
+    surfaceVariant = MyGray,
+    onSurfaceVariant = MyLightGray,
 
-    outline = Grey80,
-    outlineVariant = LightGray80,
+    outline = MyGray,
+    outlineVariant = MyLightGray,
 
     error = Color(0xFFCF6679),
     onError = Color.Black,
@@ -48,19 +48,19 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = LightBlue40,
+    primary = MyLightBlue,
     onPrimary = Color.White,
-    primaryContainer = LightBlue40,
+    primaryContainer = MyLightBlue,
     onPrimaryContainer = Color.White,
 
-    secondary = Blue40,
+    secondary = MyBlue,
     onSecondary = Color.White,
-    secondaryContainer = Blue40,
+    secondaryContainer = MyBlue,
     onSecondaryContainer = Color.White,
 
-    tertiary = DarkBlue40,
+    tertiary = MyDarkBlue,
     onTertiary = Color.White,
-    tertiaryContainer = DarkBlue40,
+    tertiaryContainer = MyDarkBlue,
     onTertiaryContainer = Color.White,
 
     background = Color.White,
