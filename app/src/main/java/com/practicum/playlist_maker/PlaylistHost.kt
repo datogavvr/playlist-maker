@@ -2,11 +2,13 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.practicum.playlist_maker.ui.activity.MainScreen
 import com.practicum.playlist_maker.Screen
+import com.practicum.playlist_maker.ui.SearchViewModel
 import com.practicum.playlist_maker.ui.activity.SearchScreen
 import com.practicum.playlist_maker.ui.activity.SettingsScreen
 
@@ -33,7 +35,8 @@ fun PlaylistHost(navController: NavHostController) {
 
         // экран поиска
         composable(Screen.SEARCH.name) {
-            SearchScreen(onBack = { navController.popBackStack() })
+            val searchViewModel: SearchViewModel = viewModel(factory = SearchViewModel.getViewModelFactory())
+            SearchScreen(onBack = { navController.popBackStack() }, viewModel = searchViewModel)
         }
 
         // экран настроек
