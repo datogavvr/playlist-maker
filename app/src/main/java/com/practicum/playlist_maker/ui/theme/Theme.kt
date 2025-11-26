@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.practicum.playlist_maker.ui.theme.ThemeManager
 
 private val DarkColorScheme = darkColorScheme(
     primary = MyLightBlue,
