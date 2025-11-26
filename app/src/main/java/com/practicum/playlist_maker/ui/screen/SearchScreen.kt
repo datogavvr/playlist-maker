@@ -1,14 +1,12 @@
-package com.practicum.playlist_maker.ui.activity
+package com.practicum.playlist_maker.ui.screen
 
 import PlaylistHost
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,8 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.R
-import com.practicum.playlist_maker.ui.SearchState
-import com.practicum.playlist_maker.ui.SearchViewModel
+import com.practicum.playlist_maker.ui.viewmodel.SearchState
+import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
 import com.practicum.playlist_maker.data.network.Track
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 
@@ -105,7 +104,7 @@ fun SearchScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
+                            contentDescription = stringResource(R.string.arrowBack),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -122,11 +121,11 @@ fun SearchScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(dimensionResource(R.dimen.padding_16))
                     .border(
-                        width = 1.5.dp,
+                        width = dimensionResource(R.dimen.search_card_border_width),
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(dimensionResource(R.dimen.theme_button_corner_radius))
                     ),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -136,26 +135,25 @@ fun SearchScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = dimensionResource(R.dimen.padding_16)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Search,
-                        contentDescription = "Поиск",
+                        contentDescription = stringResource(R.string.search),
                         modifier = Modifier
-                            .size(24.dp)
-                            .clickable(onClick = {
-                                keyboardController?.hide()
-                                viewModel.search(searchText)
-                            }),
+                            .size(dimensionResource(R.dimen.icon_24)),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
 
                     TextField(
                         value = searchText,
-                        onValueChange = { searchText = it },
+                        onValueChange = {
+                            searchText = it
+                            viewModel.search(searchText)
+                        },
                         modifier = Modifier.weight(1f),
                         placeholder = {
                             Text(
@@ -186,12 +184,15 @@ fun SearchScreen(
 
                     if (searchText.isNotEmpty()) {
                         IconButton(
-                            onClick = { searchText = "" }
+                            onClick = {
+                                searchText = ""
+                                viewModel.search("")
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Clear,
-                                contentDescription = "Очистить",
-                                modifier = Modifier.size(20.dp),
+                                contentDescription = stringResource(R.string.clear),
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_arrow)),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -209,16 +210,16 @@ fun SearchScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Здесь будут результаты поиска",
+                            text = stringResource(R.string.searchHint1),
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_8)))
 
                         Text(
-                            text = "Введите запрос в поле выше",
+                            text = stringResource(R.string.searchHint2),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
@@ -246,7 +247,8 @@ fun SearchScreen(
                 is SearchState.Fail -> {
                     val error = (screenState as SearchState.Fail).error
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Ошибка: $error", color = Color.Red)
+                        Text(text = stringResource(R.string.error, error),
+                            color = Color.Red)
                     }
                 }
             }
@@ -259,20 +261,20 @@ fun TrackListItem(track: Track) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(72.dp)
-            .padding(horizontal = 16.dp),
+            .height(dimensionResource(R.dimen.track_item_height))
+            .padding(horizontal = dimensionResource(R.dimen.padding_16)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_music),
-            contentDescription = "Трек ${track.trackName}",
+            contentDescription = stringResource(R.string.track_template, track.trackName),
             modifier = Modifier
-                .padding(vertical = 10.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .padding(vertical = dimensionResource(R.dimen.padding_10))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.search_image_corner_radius)))
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
 
         Column(
             modifier = Modifier.weight(1f),
@@ -311,8 +313,8 @@ fun TrackListItem(track: Track) {
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-            contentDescription = "Выбрать данную композицию",
-            modifier = Modifier.size(20.dp),
+            contentDescription = stringResource(R.string.select_track, track.trackName),
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_20)),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
