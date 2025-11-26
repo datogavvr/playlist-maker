@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Playlist Maker</string>
+    <string name="arrowBack">Arrow Back</string>
+    <string name="error">Error: %1$s</string>
     <string name="search">Search</string>
     <string name="playlists">Playlists</string>
     <string name="favorite">Favorite</string>
@@ -10,6 +12,13 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="share_app">Share app</string>
+    <string name="share_app_text">Download Playlist Maker, the best playlist creation app!</string>
     <string name="contact_support">Contact support</string>
     <string name="user_agreement">User agreement</string>
+    <string name="arrowForward">Arrow Forward</string>
+    <string name="clear">Clear</string>
+    <string name="searchHint1">The search results will be displayed here</string>
+    <string name="searchHint2">Enter the query in the field above</string>
+    <string name="track_template">Track %1$s</string>
+    <string name="select_track">Select track %1$s</string>
 </resources>

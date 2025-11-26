@@ -1,0 +1,40 @@
+<resources>
+    <dimen name="padding_12">12dp</dimen>
+    <dimen name="padding_16">16dp</dimen>
+
+    <dimen name="button_height">66dp</dimen>
+    <dimen name="header_height">56dp</dimen>
+
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+
+    <dimen name="icon_main">28dp</dimen>
+    <dimen name="icon_arrow">20dp</dimen>
+
+    <dimen name="corner_16">16dp</dimen>
+
+    <dimen name="padding_10">10dp</dimen>
+    <dimen name="padding_8">8dp</dimen>
+
+    <dimen name="track_item_height">72dp</dimen>
+
+    <dimen name="icon_24">24dp</dimen>
+    <dimen name="icon_20">20dp</dimen>
+
+    <dimen name="search_image_corner_radius">8dp</dimen>
+    <dimen name="search_card_border_width">1.5dp</dimen>
+
+    <dimen name="settings_padding_large">16dp</dimen>
+    <dimen name="settings_padding_medium">12dp</dimen>
+    <dimen name="settings_spacing_small">8dp</dimen>
+
+    <dimen name="settings_card_corner_radius">8dp</dimen>
+    <dimen name="settings_card_border_width">1.5dp</dimen>
+
+    <dimen name="theme_button_corner_radius">8dp</dimen>
+    <dimen name="theme_button_padding_h">8dp</dimen>
+    <dimen name="theme_button_padding_v">8dp</dimen>
+
+    <dimen name="settings_icon_size">24dp</dimen>
+
+</resources>

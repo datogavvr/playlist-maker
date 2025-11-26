@@ -1,15 +1,29 @@
 <resources>
     <string name="app_name">Плейлисты</string>
 
+    <string name="arrowForward">Стрелка вперед</string>
+    <string name="arrowBack">Стрелка назад</string>
+    <string name="error">Ошибка: %1$s</string>
+
     <string name="search">Поиск</string>
     <string name="playlists">Плейлисты</string>
     <string name="favorite">Избранное</string>
     <string name="settings">Настройки</string>
+
     <string name="theme">Тема приложения</string>
     <string name="system">Системная</string>
     <string name="light">Светлая</string>
     <string name="dark">Темная</string>
     <string name="share_app">Поделиться приложением</string>
+    <string name="share_app_text">Скачайте Playlist Maker - лучшее приложение для создания плейлистов!</string>
     <string name="contact_support">Написать в техподдержку</string>
+    <string name="contact_support_link" translatable="false">"https://t.me/datogavr"</string>
     <string name="user_agreement">Пользовательское соглашение</string>
+    <string name="user_agreement_file" translatable="false">https://www.youtube.com/watch?v=wp1ZltRNdJs</string>
+
+    <string name="clear">Очистить</string>
+    <string name="searchHint1">Здесь будут результаты поиска</string>
+    <string name="searchHint2">Введите запрос в поле выше</string>
+    <string name="track_template">Трек %1$s</string>
+    <string name="select_track">Выбрать трек %1$s</string>
 </resources>

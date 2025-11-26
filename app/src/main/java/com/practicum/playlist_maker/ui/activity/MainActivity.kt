@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,7 +77,7 @@ fun GenericButton(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(66.dp),
+            .height(dimensionResource(R.dimen.button_height)),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface
@@ -89,10 +90,10 @@ fun GenericButton(
             Icon(
                 imageVector = icon,
                 contentDescription = nameButton,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_main))
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
 
             Text(
                 text = nameButton,
@@ -103,8 +104,8 @@ fun GenericButton(
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = "Стрелка",
-                modifier = Modifier.size(20.dp),
+                contentDescription = stringResource(R.string.arrowForward),
+                modifier = Modifier.size(dimensionResource(R.dimen.icon_arrow)),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -126,8 +127,8 @@ fun MainScreen(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(12.dp),
+                    .height(dimensionResource(R.dimen.header_height))
+                    .padding(dimensionResource(R.dimen.padding_12)),
                 text = stringResource(R.string.app_name),
                 color = Color.White,
                 fontSize = 18.sp,
@@ -140,11 +141,14 @@ fun MainScreen(
                     .weight(1f)
                     .background(
                         MaterialTheme.colorScheme.background,
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                        shape = RoundedCornerShape(
+                            topStart = dimensionResource(R.dimen.corner_16),
+                            topEnd = dimensionResource(R.dimen.corner_16)
+                        )
                     )
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_16))
                 ) {
                     GenericButton(
                         icon = Icons.Filled.Search,
@@ -152,7 +156,7 @@ fun MainScreen(
                         onClick = onSearchClick
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
                     GenericButton(
                         icon = Icons.Filled.LibraryMusic,
@@ -161,7 +165,7 @@ fun MainScreen(
                         showToast = true
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
                     GenericButton(
                         icon = Icons.Filled.FavoriteBorder,
@@ -170,7 +174,7 @@ fun MainScreen(
                         showToast = true
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
                     GenericButton(
                         icon = Icons.Filled.Settings,
