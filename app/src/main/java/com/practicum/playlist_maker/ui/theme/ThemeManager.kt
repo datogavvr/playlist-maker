@@ -1,11 +1,11 @@
-package com.practicum.playlist_maker
+package com.practicum.playlist_maker.ui.theme
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
@@ -57,8 +57,8 @@ object ThemeManager {
         return when (currentTheme) {
             THEME_SYSTEM -> {
                 val configuration = context.resources.configuration
-                (configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-                        android.content.res.Configuration.UI_MODE_NIGHT_YES
+                (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                        Configuration.UI_MODE_NIGHT_YES
             }
             THEME_LIGHT -> false
             THEME_DARK -> true

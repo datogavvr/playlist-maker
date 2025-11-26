@@ -7,10 +7,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.practicum.playlist_maker.ui.activity.MainScreen
-import com.practicum.playlist_maker.Screen
-import com.practicum.playlist_maker.ui.SearchViewModel
-import com.practicum.playlist_maker.ui.activity.SearchScreen
-import com.practicum.playlist_maker.ui.activity.SettingsScreen
+import com.practicum.playlist_maker.ui.screen.Screen
+import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
+import com.practicum.playlist_maker.ui.screen.SearchScreen
+import com.practicum.playlist_maker.ui.screen.SettingsScreen
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.practicum.playlist_maker.ui
+package com.practicum.playlist_maker.ui.viewmodel
 
 import com.practicum.playlist_maker.data.network.Track
 
