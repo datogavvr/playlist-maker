@@ -1,9 +1,5 @@
 package com.practicum.playlist_maker.ui.screen
 
-import PlaylistHost
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,25 +55,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.SearchState
 import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
 import com.practicum.playlist_maker.data.network.Track
-import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
-
-class SearchActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            PlaylistmakerTheme {
-                val navController = rememberNavController()
-                PlaylistHost(navController = navController)
-            }
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

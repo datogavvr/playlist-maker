@@ -1,10 +1,6 @@
 package com.practicum.playlist_maker.ui.screen
 
-import PlaylistHost
 import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -50,21 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
 import androidx.core.net.toUri
-import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.theme.ThemeManager
-
-class SettingsActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            PlaylistmakerTheme {
-                val navController = rememberNavController()
-                PlaylistHost(navController = navController)
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
