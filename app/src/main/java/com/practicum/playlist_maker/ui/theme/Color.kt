@@ -11,3 +11,6 @@ val MyLightGray = Color(0xFFBDBDBD)
 val MyLightBlue = Color(0xFF3772E7)
 val MyBlue = Color(0xFF2E5CB9)
 val MyDarkBlue = Color(0xFF193772)
+
+// общие цвета
+val MyLightGreen = Color(0xff84d978)
