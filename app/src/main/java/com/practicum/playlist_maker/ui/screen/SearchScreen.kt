@@ -3,6 +3,7 @@ package com.practicum.playlist_maker.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +23,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,10 +39,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,16 +64,24 @@ import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.SearchState
 import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
 import com.practicum.playlist_maker.data.network.Track
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     onBack: () -> Unit = {},
-    viewModel: SearchViewModel
+    viewModel: SearchViewModel,
+    onTrackClick: (Long) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val screenState by viewModel.searchScreenState.collectAsState()
+    val history by viewModel.history.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadHistory()
+    }
 
     Scaffold(
         topBar = {
@@ -76,8 +89,8 @@ fun SearchScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.search),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 },
@@ -162,7 +175,6 @@ fun SearchScreen(
                             }
                         )
                     )
-
                     if (searchText.isNotEmpty()) {
                         IconButton(
                             onClick = {
@@ -177,6 +189,49 @@ fun SearchScreen(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+                if (searchText.isBlank() && history.isNotEmpty()) {
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(bottom = 10.dp)
+                            .padding(horizontal = 15.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_16))) {
+                        history.forEach { query ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.History,
+                                    contentDescription = stringResource(R.string.search_history),
+                                    modifier = Modifier
+                                        .size(20.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+
+                                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
+
+                                Text(
+                                    text = query,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            searchText = query
+                                            viewModel.search(query)
+                                        }
+                                        .padding(vertical = 4.dp),
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
@@ -220,7 +275,15 @@ fun SearchScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(tracks.size) { index ->
-                            TrackListItem(track = tracks[index])
+                            TrackListItem(
+                                track = tracks[index],
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.saveQueryToHistory(searchText) // сохраняем запрос
+                                        onTrackClick(tracks[index].id)
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -238,12 +301,16 @@ fun SearchScreen(
 }
 
 @Composable
-fun TrackListItem(track: Track) {
+fun TrackListItem(
+    track: Track,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.track_item_height))
-            .padding(horizontal = dimensionResource(R.dimen.padding_16)),
+            .padding(bottom = 10.dp)
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -251,14 +318,14 @@ fun TrackListItem(track: Track) {
             painter = painterResource(id = R.drawable.ic_music),
             contentDescription = stringResource(R.string.track_template, track.trackName),
             modifier = Modifier
-                .padding(vertical = dimensionResource(R.dimen.padding_10))
-                .clip(RoundedCornerShape(dimensionResource(R.dimen.search_image_corner_radius)))
+                .padding(start = dimensionResource(R.dimen.padding_16))
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
         )
 
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
 
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(0.85f),
             horizontalAlignment = Alignment.Start
         ) {
             Text(
@@ -295,7 +362,10 @@ fun TrackListItem(track: Track) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
             contentDescription = stringResource(R.string.select_track, track.trackName),
-            modifier = Modifier.size(dimensionResource(R.dimen.icon_20)),
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.icon_20))
+                .padding(end = dimensionResource(R.dimen.padding_16))
+                .weight(0.15f),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
