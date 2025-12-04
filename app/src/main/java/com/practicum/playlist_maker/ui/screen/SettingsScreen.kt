@@ -62,8 +62,8 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 title = {
                     Text(
                         text = stringResource(R.string.settings),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 },
