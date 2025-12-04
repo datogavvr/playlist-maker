@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun GenericButton(
     icon: ImageVector,
@@ -114,6 +113,7 @@ fun GenericButton(
 @Composable
 fun MainScreen(
     onSearchClick: () -> Unit = {},
+    onPlaylistsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
     Scaffold { innerPadding ->
@@ -160,8 +160,7 @@ fun MainScreen(
                     GenericButton(
                         icon = Icons.Filled.LibraryMusic,
                         nameButton = stringResource(R.string.playlists),
-                        onClick = {},
-                        showToast = true
+                        onClick = onPlaylistsClick
                     )
 
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
