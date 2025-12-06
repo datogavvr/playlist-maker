@@ -5,54 +5,94 @@ import com.practicum.playlist_maker.data.dto.TrackDto
 class Storage {
     private val listTracks = listOf(
         TrackDto(
+            id = 1,
             trackName = "25",
             artistName = "Markul",
-            trackTimeMillis = 173000 // 2:53
+            trackTime = "2:53",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 2,
             trackName = "Baptized In Fear",
             artistName = "The Weeknd",
-            trackTimeMillis = 232000 // 3:52
+            trackTime = "3:52", // 3:52
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 3,
             trackName = "BOYS DON'T CRY",
             artistName = "GONE.Fludd",
-            trackTimeMillis = 147000 // 2:27
+            trackTime = "2:27",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 4,
             trackName = "позову звезды смотреть на тебя",
             artistName = "мартин",
-            trackTimeMillis = 201000
+            trackTime = "3:21",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 5,
             trackName = "St. Patrick's",
             artistName = "Central Cee",
-            trackTimeMillis = 160000
+            trackTime = "2:40",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 6,
             trackName = "Zima Blue",
             artistName = "Markul",
-            trackTimeMillis = 182000
+            trackTime = "3:02",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 7,
             trackName = "Obsessed With You",
             artistName = "Central Cee",
-            trackTimeMillis = 108000
+            trackTime = "1:48",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 8,
             trackName = "Ordinary",
             artistName = "Fabiene Se",
-            trackTimeMillis = 140000
+            trackTime = "2:20",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 9,
             trackName = "Lucid Dreams",
             artistName = "Juice WRLD",
-            trackTimeMillis = 239000
+            trackTime = "3:59",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         ),
         TrackDto(
+            id = 9,
             trackName = "Ordinary Life",
             artistName = "The Weeknd",
-            trackTimeMillis = 221000
+            trackTime = "3:41",
+            image = "",
+            favorite = false,
+            playlistId = mutableListOf(0)
         )
     )
 
