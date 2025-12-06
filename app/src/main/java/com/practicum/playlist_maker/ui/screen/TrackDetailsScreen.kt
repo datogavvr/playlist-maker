@@ -26,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Track
@@ -100,9 +99,9 @@ fun TrackDetailsScreen(
             containerColor = MaterialTheme.colorScheme.background,
         ) {
             Text(
-                text = "Выберите плейлист",
+                text = stringResource(R.string.select_playlist),
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_16))
             )
 
             playlists.forEach { playlist ->
@@ -113,25 +112,32 @@ fun TrackDetailsScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.padding_16),
+                            vertical = dimensionResource(R.dimen.padding_10))
                         .clickable {
-                            viewModel.addTrackToPlaylist(track, playlist.id)
+                            if (!trackInPlaylist) {
+                                viewModel.addTrackToPlaylist(track, playlist.id)
+                            }
+                            else {
+                                viewModel.deleteTrackFromPlaylist(track, playlist.id)
+                            }
                         },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    // Обложка
+                    // обложка плейлиста
                     Image(
-                        painter = painterResource(id = R.drawable.ic_music),
+                        painter = painterResource(id = R.drawable.ic_music)                                                                                                         ,
                         contentDescription = playlist.name,
                         modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .size(dimensionResource(R.dimen.cover_size))
+                            .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
                     )
 
-                    Spacer(modifier = Modifier.width(14.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_14)))
 
-                    // Название
+                    // название плейлиста
                     Text(
                         text = playlist.name,
                         fontSize = 16.sp,
@@ -140,21 +146,21 @@ fun TrackDetailsScreen(
                     )
 
                     Icon(
-                        imageVector = if (trackInPlaylist)
-                            Icons.Filled.CheckCircle
+                        imageVector = if (!trackInPlaylist)
+                            Icons.Filled.Add
                         else
-                            Icons.Filled.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = if (trackInPlaylist)
-                            MyLightGreen
-                        else
+                            Icons.Filled.CheckCircle,
+                        contentDescription = stringResource(R.string.track_in_playlist_icon),
+                        modifier = Modifier.size(dimensionResource(R.dimen.icon_24)),
+                        tint = if (!trackInPlaylist)
                             Color.Gray
-                        )
+                        else
+                            MyLightGreen
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_20)))
         }
     }
 
@@ -170,7 +176,7 @@ fun TrackDetailsContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(dimensionResource(R.dimen.padding_16)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // обложка трека
@@ -179,11 +185,11 @@ fun TrackDetailsContent(
             contentDescription = track.trackName,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(260.dp)
+                .size(dimensionResource(R.dimen.medium_cover_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_20)))
 
         // название трека и исполнитель
         Text(
@@ -200,7 +206,7 @@ fun TrackDetailsContent(
             color = Color.Gray,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_24)))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -210,7 +216,7 @@ fun TrackDetailsContent(
             IconButton(
                 onClick = onAddToPlaylist,
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(dimensionResource(R.dimen.size_56))
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
             ) {
@@ -227,7 +233,7 @@ fun TrackDetailsContent(
                     onToggleFavorite(!track.favorite)
                 },
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(dimensionResource(R.dimen.size_56))
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary),
             ) {
@@ -239,7 +245,7 @@ fun TrackDetailsContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
         DetailRow(title = stringResource(R.string.duration), value = track.trackTime)
     }
@@ -250,7 +256,7 @@ fun DetailRow(title: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = dimensionResource(R.dimen.padding_6)),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Gray)

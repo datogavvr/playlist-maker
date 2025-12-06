@@ -43,9 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Playlist
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
@@ -94,7 +92,7 @@ fun PlaylistsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
+                    .padding(top = dimensionResource(R.dimen.padding_4)),
             ) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(playlists.size) { index ->
@@ -110,18 +108,18 @@ fun PlaylistsScreen(
             }
             FloatingActionButton(
                 modifier = Modifier
-                    .padding(32.dp)
+                    .padding(dimensionResource(R.dimen.padding_32))
                     .align(Alignment.BottomEnd),
                 onClick = { addNewPlaylist() },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                elevation = FloatingActionButtonDefaults.elevation(dimensionResource(R.dimen.no_elevation))
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = stringResource(R.string.add_playlist),
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(dimensionResource(R.dimen.size_40))
                 )
             }
         }
@@ -136,8 +134,8 @@ fun PlaylistListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
-            .padding(bottom = 20.dp)
+            .height(dimensionResource(R.dimen.padding_120))
+            .padding(bottom = dimensionResource(R.dimen.padding_20))
             .clickable(onClick = { onClick.invoke() }),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -165,7 +163,7 @@ fun PlaylistListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            val text = "${playlist.tracks.size} tracks"
+            val text = stringResource(R.string.count_tracks, playlist.tracks.size)
             Text(
                 text,
                 fontSize = 13.sp,

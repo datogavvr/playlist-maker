@@ -1,28 +1,49 @@
 <resources>
-    <dimen name="padding_12">12dp</dimen>
-    <dimen name="padding_16">16dp</dimen>
-
     <dimen name="button_height">66dp</dimen>
     <dimen name="header_height">56dp</dimen>
-
-    <dimen name="space_12">12dp</dimen>
-    <dimen name="space_16">16dp</dimen>
 
     <dimen name="icon_main">28dp</dimen>
     <dimen name="icon_arrow">20dp</dimen>
 
     <dimen name="corner_16">16dp</dimen>
+    <dimen name="no_elevation">0dp</dimen>
 
+    <dimen name="padding_120">120dp</dimen>
+    <dimen name="padding_72">72dp</dimen>
+    <dimen name="padding_32">32dp</dimen>
+    <dimen name="padding_24">24dp</dimen>
+    <dimen name="padding_20">20dp</dimen>
+    <dimen name="padding_16">16dp</dimen>
+    <dimen name="padding_12">12dp</dimen>
     <dimen name="padding_10">10dp</dimen>
     <dimen name="padding_8">8dp</dimen>
+    <dimen name="padding_6">6dp</dimen>
+    <dimen name="padding_4">4dp</dimen>
+
+    <dimen name="size_56">56dp</dimen>
+    <dimen name="size_40">40dp</dimen>
+
+    <dimen name="width_1_5">1.5dp</dimen>
+    <dimen name="width_0_5">0.5dp</dimen>
+
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_14">14dp</dimen>
+    <dimen name="space_12">12dp</dimen>
 
     <dimen name="track_item_height">72dp</dimen>
 
     <dimen name="icon_24">24dp</dimen>
     <dimen name="icon_20">20dp</dimen>
 
-    <dimen name="search_image_corner_radius">8dp</dimen>
+    <dimen name="cover_size">50dp</dimen>
+    <dimen name="medium_cover_size">260dp</dimen>
+    <dimen name="cover_corner_radius">10dp</dimen>
     <dimen name="search_card_border_width">1.5dp</dimen>
+
+    <dimen name="create_playlist_cover_icon_height">50dp</dimen>
+    <dimen name="create_playlist_cover_image_size">300dp</dimen>
 
     <dimen name="settings_padding_large">16dp</dimen>
     <dimen name="settings_padding_medium">12dp</dimen>

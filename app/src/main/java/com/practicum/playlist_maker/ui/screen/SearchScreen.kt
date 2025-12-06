@@ -58,7 +58,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.SearchState
@@ -124,7 +123,7 @@ fun SearchScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(dimensionResource(R.dimen.no_elevation))
             ) {
                 Row(
                     modifier = Modifier
@@ -194,9 +193,9 @@ fun SearchScreen(
                 if (searchText.isBlank() && history.isNotEmpty()) {
                     HorizontalDivider(
                         modifier = Modifier
-                            .padding(bottom = 10.dp)
-                            .padding(horizontal = 15.dp),
-                        thickness = 0.5.dp,
+                            .padding(bottom = dimensionResource(R.dimen.padding_10))
+                            .padding(horizontal = dimensionResource(R.dimen.padding_16)),
+                        thickness = dimensionResource(R.dimen.width_0_5),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_16))) {
@@ -211,7 +210,7 @@ fun SearchScreen(
                                     imageVector = Icons.Filled.History,
                                     contentDescription = stringResource(R.string.search_history),
                                     modifier = Modifier
-                                        .size(20.dp),
+                                        .size(dimensionResource(R.dimen.padding_20)),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
 
@@ -225,13 +224,13 @@ fun SearchScreen(
                                             searchText = query
                                             viewModel.search(query)
                                         }
-                                        .padding(vertical = 4.dp),
+                                        .padding(vertical = dimensionResource(R.dimen.padding_4)),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_8)))
                     }
                 }
             }
@@ -309,7 +308,7 @@ fun TrackListItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.track_item_height))
-            .padding(bottom = 10.dp)
+            .padding(bottom = dimensionResource(R.dimen.padding_10))
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

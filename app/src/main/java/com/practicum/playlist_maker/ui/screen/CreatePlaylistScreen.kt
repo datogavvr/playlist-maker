@@ -28,11 +28,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -83,14 +83,14 @@ fun CreatePlaylistScreen(
                         viewModel.createNewPlayList(title, description)
                         onBack()
                     } else {
-                        Toast.makeText(context, "Введите название плейлиста", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.title_hint, Toast.LENGTH_SHORT).show()
                     }
                 },
 //                enabled = isCreateEnabled,
                 modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .padding(horizontal = 16.dp)
-                    .height(50.dp)
+                    .padding(bottom = dimensionResource(R.dimen.padding_16))
+                    .padding(horizontal = dimensionResource(R.dimen.padding_16))
+                    .height(dimensionResource(R.dimen.create_playlist_cover_icon_height))
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
@@ -128,9 +128,9 @@ fun CreatePlaylistScreen(
         ) {
             Box(
                 modifier = Modifier
-                    .padding(top = 24.dp)
-                    .size(300.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .padding(top = dimensionResource(R.dimen.padding_24))
+                    .size(dimensionResource(R.dimen.create_playlist_cover_image_size))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_12)))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable {
                         // TODO: открыть выбор изображения
@@ -141,7 +141,7 @@ fun CreatePlaylistScreen(
                     Icon(
                         imageVector = Icons.Filled.AddPhotoAlternate,
                         contentDescription = stringResource(R.string.add_cover),
-                        modifier = Modifier.size(72.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.padding_72)),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
@@ -192,13 +192,13 @@ fun LabeledTextField(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = dimensionResource(R.dimen.padding_16), vertical = dimensionResource(R.dimen.padding_12))
             .border(
-                width = 1.5.dp,
+                width = dimensionResource(R.dimen.width_1_5),
                 color = borderColor,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius))
             )
-            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .padding(horizontal = dimensionResource(R.dimen.padding_12), vertical = dimensionResource(R.dimen.padding_4))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
