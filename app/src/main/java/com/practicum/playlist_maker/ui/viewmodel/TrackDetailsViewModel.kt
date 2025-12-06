@@ -59,4 +59,21 @@ class TrackDetailsViewModel : ViewModel() {
         }
     }
 
+    // удаление трека из плейлиста
+    fun deleteTrackFromPlaylist(track: Track?, playlistId: Long) {
+        if (track == null) return
+
+        viewModelScope.launch {
+
+            if (!track.playlistId.contains(playlistId)) {
+                track.playlistId.remove(playlistId)
+            }
+
+            tracksRepository.deleteTrackFromPlaylist(track.id, playlistId)
+
+            _trackState.value = track.copy(
+                playlistId = track.playlistId.toMutableList()
+            )
+        }
+    }
 }

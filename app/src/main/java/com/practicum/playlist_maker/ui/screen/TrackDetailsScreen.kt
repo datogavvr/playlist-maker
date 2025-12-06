@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,17 +41,20 @@ fun TrackDetailsScreen(
     viewModel: TrackDetailsViewModel,
     onBack: () -> Unit
 ) {
-    val trackFlow = viewModel.getTrack(trackId).collectAsState(initial = null)
-    var track by remember { mutableStateOf(trackFlow.value) }
-
+    val track by viewModel.getTrack(trackId).collectAsState(initial = null)
     val playlists by viewModel.getPlaylists().collectAsState(initial = emptyList())
+
+    // локальные state
+    val playlistIdsState = remember { mutableStateOf<Set<Long>>(emptySet()) }
+    val favoriteState = remember { mutableStateOf(false) }
+
+    LaunchedEffect(track) {
+        playlistIdsState.value = track?.playlistId?.toSet() ?: emptySet()
+        favoriteState.value = track?.favorite ?: false
+    }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetOpen by remember { mutableStateOf(false) }
-
-    LaunchedEffect(trackFlow.value) {
-        track = trackFlow.value
-    }
 
     Scaffold(
         topBar = {
@@ -76,16 +81,18 @@ fun TrackDetailsScreen(
     ) { innerPadding ->
         track?.let { t ->
             TrackDetailsContent(
-                track = t,
+                track = t.copy(favorite = favoriteState.value),
                 modifier = Modifier.padding(innerPadding),
                 onAddToPlaylist = { isSheetOpen = true },
                 onToggleFavorite = { newValue ->
-                    track = track!!.copy(favorite = newValue)
-                    viewModel.updateTrackFavoriteStatus(track!!.id, newValue)
+                    favoriteState.value = newValue
+                    viewModel.updateTrackFavoriteStatus(t.id, newValue)
                 }
             )
         } ?: Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
@@ -104,66 +111,76 @@ fun TrackDetailsScreen(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_16))
             )
 
-            playlists.forEach { playlist ->
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(playlists, key = { it.id }) { playlist ->
+                    val currentSet by rememberUpdatedState(playlistIdsState.value)
+                    val trackInPlaylist = currentSet.contains(playlist.id)
 
-                // проверка, есть ли трек в этом плейлисте
-                val trackInPlaylist = track?.playlistId?.contains(playlist.id) == true
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = dimensionResource(R.dimen.padding_16),
-                            vertical = dimensionResource(R.dimen.padding_10))
-                        .clickable {
-                            if (!trackInPlaylist) {
-                                viewModel.addTrackToPlaylist(track, playlist.id)
-                            }
-                            else {
-                                viewModel.deleteTrackFromPlaylist(track, playlist.id)
-                            }
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    // обложка плейлиста
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_music)                                                                                                         ,
-                        contentDescription = playlist.name,
+                    Row(
                         modifier = Modifier
-                            .size(dimensionResource(R.dimen.cover_size))
-                            .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
-                    )
+                            .fillMaxWidth()
+                            .clickable {
+                                playlistIdsState.value = if (trackInPlaylist) {
+                                    currentSet - playlist.id
+                                } else {
+                                    currentSet + playlist.id
+                                }
 
-                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_14)))
+                                if (track != null) {
+                                    if (!trackInPlaylist) {
+                                        viewModel.addTrackToPlaylist(track, playlist.id)
+                                    } else {
+                                        viewModel.deleteTrackFromPlaylist(track, playlist.id)
+                                    }
+                                }
+                            }
+                            .padding(
+                                horizontal = dimensionResource(R.dimen.padding_16),
+                                vertical = dimensionResource(R.dimen.padding_10)
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                    // название плейлиста
-                    Text(
-                        text = playlist.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.weight(1f)
-                    )
+                        // обложка плейлиста
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_music),
+                            contentDescription = playlist.name,
+                            modifier = Modifier
+                                .size(dimensionResource(R.dimen.cover_size))
+                                .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
+                        )
 
-                    Icon(
-                        imageVector = if (!trackInPlaylist)
-                            Icons.Filled.Add
-                        else
-                            Icons.Filled.CheckCircle,
-                        contentDescription = stringResource(R.string.track_in_playlist_icon),
-                        modifier = Modifier.size(dimensionResource(R.dimen.icon_24)),
-                        tint = if (!trackInPlaylist)
-                            Color.Gray
-                        else
-                            MyLightGreen
-                    )
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_14)))
+
+                        // название плейлиста
+                        Text(
+                            text = playlist.name,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Icon(
+                            imageVector = if (!trackInPlaylist)
+                                Icons.Filled.Add
+                            else
+                                Icons.Filled.CheckCircle,
+                            contentDescription = stringResource(R.string.track_in_playlist_icon),
+                            modifier = Modifier.size(dimensionResource(R.dimen.icon_24)),
+                            tint = if (!trackInPlaylist)
+                                Color.Gray
+                            else
+                                MyLightGreen
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_20)))
         }
     }
-
 }
 
 @Composable

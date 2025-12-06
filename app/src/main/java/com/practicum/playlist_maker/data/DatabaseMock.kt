@@ -4,7 +4,6 @@ import com.practicum.playlist_maker.data.network.Playlist
 import com.practicum.playlist_maker.data.network.Track
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -104,8 +103,11 @@ class DatabaseMock(
     }
 
     fun removeTrackFromPlaylist(trackId: Long, playlistId: Long) {
-        tracks.find { it.id == trackId }?.playlistId?.remove(playlistId)
+        tracks.find { it.id == trackId }?.playlistId?.apply {
+            if (contains(playlistId)) remove(playlistId)
+        }
         notifyTracksChanged()
+        notifyPlaylistsChanged()
     }
 
     fun deleteTracksByPlaylistId(playlistId: Long) {
