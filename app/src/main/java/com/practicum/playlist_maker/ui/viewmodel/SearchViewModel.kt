@@ -21,6 +21,7 @@ class SearchViewModel(
     val searchScreenState  = _searchScreenState.asStateFlow()
     private val _history = MutableStateFlow<List<String>>(emptyList())
     val history = _history.asStateFlow()
+    private var lastQuery: String? = null
 
 
     fun search(whatSearch: String){
@@ -28,6 +29,7 @@ class SearchViewModel(
             _searchScreenState.update { SearchState.Initial }
             return
         }
+        lastQuery = whatSearch
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _searchScreenState.update { SearchState.Searching }
@@ -42,6 +44,10 @@ class SearchViewModel(
                 _searchScreenState.update { SearchState.Fail(e.message.toString()) }
             }
         }
+    }
+
+    fun retryLastSearch() {
+        lastQuery?.let { search(it) }
     }
 
     // загрузка 3 последних запросов

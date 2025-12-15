@@ -36,9 +36,17 @@ class PlaylistsViewModel() : ViewModel() {
         }
     }
 
-    fun createNewPlayList(namePlaylist: String, description: String) {
+    fun createNewPlayList(
+        playlistName: String,
+        description: String,
+        coverUri: String?
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            playlistsRepository.addNewPlaylist(namePlaylist, description)
+            playlistsRepository.addNewPlaylist(
+                playlistName,
+                description,
+                coverUri
+            )
         }
     }
 

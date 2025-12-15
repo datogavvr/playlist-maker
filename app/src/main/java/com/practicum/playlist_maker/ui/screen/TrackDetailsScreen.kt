@@ -1,6 +1,5 @@
 package com.practicum.playlist_maker.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,13 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Track
 import com.practicum.playlist_maker.ui.theme.MyLightGreen
@@ -114,7 +114,7 @@ fun TrackDetailsScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                items(playlists, key = { it.id }) { playlist ->
+                items(playlists.asReversed(), key = { it.id }) { playlist ->
                     val currentSet by rememberUpdatedState(playlistIdsState.value)
                     val trackInPlaylist = currentSet.contains(playlist.id)
 
@@ -142,11 +142,13 @@ fun TrackDetailsScreen(
                             ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         // обложка плейлиста
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_music),
-                            contentDescription = playlist.name,
+                        AsyncImage(
+                            model = playlist.coverUri,
+                            contentDescription = playlist.playlistName,
+                            placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                            error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .size(dimensionResource(R.dimen.cover_size))
                                 .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
@@ -156,7 +158,7 @@ fun TrackDetailsScreen(
 
                         // название плейлиста
                         Text(
-                            text = playlist.name,
+                            text = playlist.playlistName,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f)
@@ -197,10 +199,11 @@ fun TrackDetailsContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // обложка трека
-        Image(
-            painter = painterResource(R.drawable.ic_music),
-            contentDescription = track.trackName,
-            contentScale = ContentScale.Crop,
+        AsyncImage(
+            model = track.image,
+            contentDescription = stringResource(R.string.track_template, track.trackName),
+            placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+            error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier
                 .size(dimensionResource(R.dimen.medium_cover_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
@@ -220,9 +223,10 @@ fun TrackDetailsContent(
             text = track.artistName,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_24)))
 
         Row(

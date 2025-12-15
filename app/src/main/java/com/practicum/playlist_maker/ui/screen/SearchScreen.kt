@@ -1,6 +1,5 @@
 package com.practicum.playlist_maker.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +24,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,15 +51,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.SearchState
 import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
@@ -244,11 +246,19 @@ fun SearchScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.History,
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensionResource(R.dimen.size_40)),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_16)))
                         Text(
                             text = stringResource(R.string.searchHint1),
                             fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_8)))
@@ -270,28 +280,80 @@ fun SearchScreen(
 
                 is SearchState.Success -> {
                     val tracks = (screenState as SearchState.Success).list
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(tracks.size) { index ->
-                            TrackListItem(
-                                track = tracks[index],
-                                onClick = {
-                                    coroutineScope.launch {
-                                        viewModel.saveQueryToHistory(searchText) // сохраняем запрос
-                                        onTrackClick(tracks[index].id)
-                                    }
-                                }
+
+                    if (tracks.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.SentimentVeryDissatisfied,
+                                contentDescription = null,
+                                modifier = Modifier.size(dimensionResource(R.dimen.size_56)),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_16)))
+
+                            Text(
+                                text = stringResource(R.string.nothing_found),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(tracks.size) { index ->
+                                TrackListItem(
+                                    track = tracks[index],
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            viewModel.saveQueryToHistory(searchText)
+                                            onTrackClick(tracks[index].id)
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
 
                 is SearchState.Fail -> {
-                    val error = (screenState as SearchState.Fail).error
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.error, error),
-                            color = Color.Red)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.SentimentVeryDissatisfied,
+                            contentDescription = null,
+                            modifier = Modifier.size(dimensionResource(R.dimen.size_56)),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_16)))
+
+                        Text(
+                            text = stringResource(R.string.server_error),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_16)))
+
+                        Button(
+                            onClick = { viewModel.retryLastSearch() }
+                        ) {
+                            Text(stringResource(R.string.refresh))
+                        }
                     }
                 }
             }
@@ -308,16 +370,19 @@ fun TrackListItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.track_item_height))
-            .padding(bottom = dimensionResource(R.dimen.padding_10))
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .padding(vertical = dimensionResource(R.dimen.padding_5)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_music),
+        AsyncImage(
+            model = track.image,
             contentDescription = stringResource(R.string.track_template, track.trackName),
+            placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+            error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier
                 .padding(start = dimensionResource(R.dimen.padding_16))
+                .size(dimensionResource(R.dimen.cover_size))
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
         )
 
