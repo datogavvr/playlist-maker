@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker.data
 
+import androidx.compose.ui.res.painterResource
 import com.practicum.playlist_maker.data.network.Playlist
 import com.practicum.playlist_maker.data.network.Track
 import kotlinx.coroutines.CoroutineScope
@@ -14,19 +15,9 @@ class DatabaseMock(
     private val _historyUpdates = MutableSharedFlow<Unit>()
 
     private val playlists = mutableListOf<Playlist>()
+    private var nextPlaylistId = 1L
 
-    private val tracks = mutableListOf(
-        Track(1, "25", "Markul", "2:53", "", false, mutableListOf()),
-        Track(2, "Baptized In Fear", "The Weeknd", "3:52", "", false, mutableListOf()),
-        Track(3, "BOYS DON'T CRY", "GONE.Fludd", "2:27", "", false, mutableListOf()),
-        Track(4, "позову звезды смотреть на тебя", "мартин", "3:21", "", false, mutableListOf()),
-        Track(5, "St. Patrick's", "Central Cee", "2:40", "", false, mutableListOf()),
-        Track(6, "Zima Blue", "Markul", "3:02", "", false, mutableListOf()),
-        Track(7, "Obsessed With You", "Central Cee", "1:48", "", false, mutableListOf()),
-        Track(8, "Ordinary", "Fabiene Se", "2:20", "", false, mutableListOf()),
-        Track(9, "Lucid Dreams", "Juice WRLD", "3:59", "", false, mutableListOf()),
-        Track(10, "Ordinary Life", "The Weeknd", "3:41", "", false, mutableListOf())
-    )
+    private val tracks = mutableListOf<Track>()
 
     private val _tracksFlow = MutableStateFlow(tracks.toList())
     val tracksFlow: Flow<List<Track>> get() = _tracksFlow
@@ -50,21 +41,22 @@ class DatabaseMock(
     fun getAllPlaylists(): Flow<List<Playlist>> = playlistsFlow
 
     fun getPlaylist(id: Long): Flow<Playlist?> =
-        flow {
-            val playlist = playlists.find { it.id == id }
-            playlist?.let {
-                val playlistTracks = tracks.filter { t -> id in t.playlistId }
-                emit(playlist.copy(tracks = playlistTracks))
-            } ?: emit(null)
+        _playlistsFlow.map { list ->
+            list.find { it.id == id }?.copy(tracks = tracks.filter { t -> id in t.playlistId })
         }
 
-    fun addNewPlaylist(name: String, description: String) {
+    fun addNewPlaylist(
+        name: String,
+        description: String,
+        coverUri: String?
+    ) {
         playlists.add(
             Playlist(
-                id = playlists.size.toLong() + 1,
-                name = name,
+                id = nextPlaylistId++,
+                playlistName = name,
                 description = description,
-                tracks = emptyList()
+                coverUri = coverUri,
+                tracks = emptyList(),
             )
         )
         notifyPlaylistsChanged()
@@ -136,4 +128,7 @@ class DatabaseMock(
         _playlistsFlow.value = result
     }
 
+    fun getTrackSync(id: Long): Track? {
+        return tracks.find { it.id == id }
+    }
 }
