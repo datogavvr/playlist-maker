@@ -1,6 +1,5 @@
 package com.practicum.playlist_maker.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -37,13 +39,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Playlist
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
@@ -89,22 +92,55 @@ fun PlaylistsScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dimensionResource(R.dimen.padding_4)),
-            ) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(playlists.size) { index ->
-                        PlaylistListItem(
-                            playlist = playlists[index],
-                            onClick = {
-                                onPlaylistClick(playlists[index].id)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimensionResource(R.dimen.padding_4)),
+                ) {
+                    if (playlists.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.LibraryMusic,
+                                contentDescription = null,
+                                modifier = Modifier.size(dimensionResource(R.dimen.size_40)),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_16)))
+
+                            Text(
+                                text = stringResource(R.string.no_playlists_hint1),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_8)))
+
+                            Text(
+                                text = stringResource(R.string.no_playlists_hint2),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(playlists.asReversed()) { playlist ->
+                                PlaylistListItem(
+                                    playlist = playlist,
+                                    onClick = {
+                                        onPlaylistClick(playlist.id)
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
-            }
             }
             FloatingActionButton(
                 modifier = Modifier
@@ -135,19 +171,22 @@ fun PlaylistListItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.padding_120))
-            .padding(bottom = dimensionResource(R.dimen.padding_20))
-            .clickable(onClick = { onClick.invoke() }),
+            .clickable(onClick = { onClick() })
+            .padding(vertical = dimensionResource(R.dimen.padding_10)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Image(
+        AsyncImage(
+            model = playlist.coverUri,
+            contentDescription = playlist.playlistName,
+            placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+            error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxHeight()
                 .padding(start = dimensionResource(R.dimen.padding_16))
-                .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius))),
-            painter = painterResource(id = R.drawable.ic_music),
-            contentDescription = playlist.name,
-            colorFilter = ColorFilter.tint(Color.Gray)
+                .fillMaxHeight()
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
         )
 
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.space_12)))
@@ -157,7 +196,7 @@ fun PlaylistListItem(
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                playlist.name,
+                playlist.playlistName,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
