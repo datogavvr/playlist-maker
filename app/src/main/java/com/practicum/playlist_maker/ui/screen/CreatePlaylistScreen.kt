@@ -1,7 +1,10 @@
 package com.practicum.playlist_maker.ui.screen
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,12 +37,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
+import java.io.File
+import java.io.FileOutputStream
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun CreatePlaylistScreen(
     onBack: () -> Unit,
@@ -50,11 +59,28 @@ fun CreatePlaylistScreen(
     var titleFocused by remember { mutableStateOf(false) }
     var descriptionFocused by remember { mutableStateOf(false) }
     var coverUri by remember { mutableStateOf<Uri?>(null) }
+    var showImagePickerDialog by remember { mutableStateOf(false) }
 
     val isCreateEnabled = title.isNotBlank()
     val focusManager: FocusManager = LocalFocusManager.current
 
     val context = LocalContext.current
+
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) coverUri = uri
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        bitmap?.let {
+            coverUri = saveBitmapToCache(context, it)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -80,13 +106,16 @@ fun CreatePlaylistScreen(
             Button(
                 onClick = {
                     if (isCreateEnabled) {
-                        viewModel.createNewPlayList(title, description)
+                        viewModel.createNewPlayList(
+                            playlistName = title,
+                            description = description,
+                            coverUri = coverUri?.toString()
+                        )
                         onBack()
                     } else {
                         Toast.makeText(context, R.string.title_hint, Toast.LENGTH_SHORT).show()
                     }
                 },
-//                enabled = isCreateEnabled,
                 modifier = Modifier
                     .padding(bottom = dimensionResource(R.dimen.padding_16))
                     .padding(horizontal = dimensionResource(R.dimen.padding_16))
@@ -111,7 +140,6 @@ fun CreatePlaylistScreen(
             }
         }
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -133,7 +161,7 @@ fun CreatePlaylistScreen(
                     .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_12)))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable {
-                        // TODO: открыть выбор изображения
+                        showImagePickerDialog = true
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -172,6 +200,59 @@ fun CreatePlaylistScreen(
             )
         }
     }
+
+    if (showImagePickerDialog) {
+        AlertDialog(
+            onDismissRequest = { showImagePickerDialog = false },
+            title = { Text(stringResource(R.string.choose_cover_source)) },
+            text = {
+                Column {
+                    Text(
+                        text = stringResource(R.string.gallery),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImagePickerDialog = false
+                                galleryLauncher.launch("image/*")
+                            }
+                            .padding(dimensionResource(R.dimen.padding_12)),
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(Modifier.height(dimensionResource(R.dimen.padding_8)))
+
+                    Text(
+                        text = stringResource(R.string.camera),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                showImagePickerDialog = false
+                                if (cameraPermissionState.status.isGranted) {
+                                    cameraLauncher.launch(null)
+                                } else {
+                                    cameraPermissionState.launchPermissionRequest()
+                                }
+                            }
+                            .padding(dimensionResource(R.dimen.padding_12)),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+            confirmButton = {},
+            dismissButton = {}
+        )
+    }
+
+}
+
+fun saveBitmapToCache(context: Context, bitmap: Bitmap): Uri {
+    val file = File(context.cacheDir, "cover_${System.currentTimeMillis()}.jpg")
+    val out = FileOutputStream(file)
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+    out.flush()
+    out.close()
+    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 }
 
 @Composable
