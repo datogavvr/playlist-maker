@@ -119,8 +119,9 @@ fun PlaylistHost(navController: NavHostController) {
                     Toast.makeText(context, "Редактирование", Toast.LENGTH_SHORT).show()
                 },
                 onDeleteClick = {
-                    Toast.makeText(context, "Удалено", Toast.LENGTH_SHORT).show()
-                    navController.popBackStack()
+                    playlistViewModel.deletePlaylist {
+                        navController.popBackStack()
+                    }
                 },
                 onShareClick = {
                     Toast.makeText(context, "Поделиться", Toast.LENGTH_SHORT).show()

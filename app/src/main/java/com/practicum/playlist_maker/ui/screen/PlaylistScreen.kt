@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -19,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +45,7 @@ fun PlaylistScreen(
 ) {
     val playlist = playlistViewModel.playlist.collectAsState(initial = null).value
     val isLoading by playlistViewModel.isLoading.collectAsState()
+    val context = LocalContext.current
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -170,15 +173,30 @@ fun PlaylistScreen(
                     .padding(dimensionResource(R.dimen.padding_16))
             ) {
                 Text(playlist.playlistName, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+
                 Text(
                     "$totalMinutes мин • $trackCountText",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 Spacer(Modifier.height(dimensionResource(R.dimen.padding_20)))
+
+
                 SheetButton(stringResource(R.string.share_playlist)) { isSheetOpen = false; onShareClick() }
+
                 SheetButton(stringResource(R.string.edit_info)) { isSheetOpen = false; onEditClick() }
-                SheetButton(stringResource(R.string.delete_playlist), color = Color.Red) { isSheetOpen = false; onDeleteClick() }
+
+                val deletePlaylistToastText = stringResource(R.string.delete_playlist_toast, playlist.playlistName)
+                SheetButton(
+                    stringResource(R.string.delete_playlist),
+                    color = Color.Red
+                ) {
+                    isSheetOpen = false
+                    Toast.makeText(context, deletePlaylistToastText, Toast.LENGTH_SHORT).show()
+                    playlistViewModel.deletePlaylist()
+                    onBack()
+                }
                 Spacer(Modifier.height(dimensionResource(R.dimen.padding_20)))
             }
         }

@@ -26,7 +26,7 @@ class PlaylistViewModel(
     // суммарная длительность в минутах
     val totalMinutes: StateFlow<Long> = playlist
         .map { playlist ->
-            playlist?.tracks?.sumOf { it.trackTimeMillis }?.div(1000)?.div(60) ?: 0L
+            playlist?.tracks?.sumOf { it.trackTimeMillis ?: 0L }?.div(1000)?.div(60) ?: 0L
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, 0L)
 
@@ -56,6 +56,13 @@ class PlaylistViewModel(
                 trackId = trackId,
                 playlistId = playlistId
             )
+        }
+    }
+
+    fun deletePlaylist(onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            playlistsRepository.deletePlaylistById(playlistId)
+            onComplete()
         }
     }
 
