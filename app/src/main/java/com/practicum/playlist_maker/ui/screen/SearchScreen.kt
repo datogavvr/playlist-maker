@@ -221,15 +221,33 @@ fun SearchScreen(
                                 Text(
                                     text = query,
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .weight(1f)
                                         .clickable {
                                             searchText = query
                                             viewModel.search(query)
                                         }
                                         .padding(vertical = dimensionResource(R.dimen.padding_4)),
                                     fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
                                 )
+
+                                IconButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            viewModel.removeQueryFromHistory(query)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Clear,
+                                        contentDescription = stringResource(R.string.clear),
+                                        modifier = Modifier
+                                            .size(dimensionResource(R.dimen.padding_20)),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_8)))

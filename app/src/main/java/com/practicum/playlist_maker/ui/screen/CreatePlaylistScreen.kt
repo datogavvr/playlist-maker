@@ -1,7 +1,6 @@
 package com.practicum.playlist_maker.ui.screen
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -46,7 +44,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
 import java.io.File
-import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -67,18 +64,22 @@ fun CreatePlaylistScreen(
     val context = LocalContext.current
 
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) coverUri = uri
+        uri?.let {
+            val path = saveUriToInternalStorage(context, it)
+            coverUri = Uri.fromFile(File(path))
+        }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        bitmap?.let {
-            coverUri = saveBitmapToCache(context, it)
+        contract = androidx.activity.result.contract.ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success && tempCameraUri != null) {
+            coverUri = tempCameraUri
         }
     }
 
@@ -228,7 +229,8 @@ fun CreatePlaylistScreen(
                             .clickable {
                                 showImagePickerDialog = false
                                 if (cameraPermissionState.status.isGranted) {
-                                    cameraLauncher.launch(null)
+                                    tempCameraUri = createImageUri(context)
+                                    cameraLauncher.launch(tempCameraUri!!)
                                 } else {
                                     cameraPermissionState.launchPermissionRequest()
                                 }
@@ -246,13 +248,26 @@ fun CreatePlaylistScreen(
 
 }
 
-fun saveBitmapToCache(context: Context, bitmap: Bitmap): Uri {
-    val file = File(context.cacheDir, "cover_${System.currentTimeMillis()}.jpg")
-    val out = FileOutputStream(file)
-    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-    out.flush()
-    out.close()
-    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+fun createImageUri(context: Context): Uri {
+    val contentValues = android.content.ContentValues().apply {
+        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "cover_${System.currentTimeMillis()}.jpg")
+        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+    }
+    return context.contentResolver.insert(
+        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        contentValues
+    )!!
+}
+
+fun saveUriToInternalStorage(context: Context, uri: Uri): String {
+    val fileName = "cover_${System.currentTimeMillis()}.jpg"
+    val file = File(context.filesDir, fileName)
+    context.contentResolver.openInputStream(uri)?.use { input ->
+        file.outputStream().use { output ->
+            input.copyTo(output)
+        }
+    }
+    return file.absolutePath
 }
 
 @Composable
