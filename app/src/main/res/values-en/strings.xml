@@ -49,6 +49,7 @@
     <string name="share_playlist">Share playlist</string>
     <string name="edit_info">Edit information</string>
     <string name="delete_playlist">Delete playlist</string>
+    <string name="delete_playlist_toast">Playlist «%1$s» deleted</string>
     <string name="delete_track_from_playlist">Delete track?</string>
     <string name="delete_track_confirm">Are you sure you want to delete the track «%1$s» from the playlist?</string>
     <string name="delete">Delete</string>
