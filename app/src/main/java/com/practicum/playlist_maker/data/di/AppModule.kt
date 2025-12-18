@@ -1,6 +1,8 @@
 package com.practicum.playlist_maker.data.di
 
-import com.practicum.playlist_maker.data.DatabaseMock
+import android.content.Context
+import androidx.room.Room
+import com.practicum.playlist_maker.data.database.AppDatabase
 import com.practicum.playlist_maker.data.network.PlaylistsRepositoryImpl
 import com.practicum.playlist_maker.data.network.TracksRepositoryImpl
 import com.practicum.playlist_maker.domain.PlaylistsRepository
@@ -17,13 +19,8 @@ val appModule = module {
         CoroutineScope(Dispatchers.IO)
     }
 
-    single {
-        DatabaseMock(get())
-    }
-
     single<PlaylistsRepository> {
         PlaylistsRepositoryImpl(
-            scope = get(),
             database = get()
         )
     }
@@ -41,5 +38,15 @@ val appModule = module {
             playlistsRepository = get(),
             tracksRepository = get()
         )
+    }
+}
+
+val databaseModule = module {
+    single {
+        Room.databaseBuilder(
+                get<Context>(),
+                AppDatabase::class.java,
+                "playlists_maker"
+            ).build()
     }
 }

@@ -1,26 +1,36 @@
 package com.practicum.playlist_maker.data.network
 
-import com.practicum.playlist_maker.data.DatabaseMock
+import com.practicum.playlist_maker.data.database.AppDatabase
+import com.practicum.playlist_maker.data.database.toDomain
+import com.practicum.playlist_maker.data.database.toEntity
+import com.practicum.playlist_maker.data.database.entity.PlaylistEntity
+import com.practicum.playlist_maker.data.database.entity.PlaylistsTracks
 import com.practicum.playlist_maker.data.dto.TracksSearchRequest
 import com.practicum.playlist_maker.data.dto.TracksSearchResponse
 import com.practicum.playlist_maker.data.dto.toDomain
 import com.practicum.playlist_maker.domain.NetworkClient
 import com.practicum.playlist_maker.domain.PlaylistsRepository
 import com.practicum.playlist_maker.domain.TracksRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
-    private val scope: CoroutineScope,
-    private val database: DatabaseMock
+    private val database: AppDatabase
 ) : PlaylistsRepository {
 
+    private val playlistDao = database.PlaylistsDao()
+    private val tracksDao = database.TracksDao()
+
     override fun getPlaylist(playlistId: Long): Flow<Playlist?> {
-        return database.getPlaylist(playlistId)
+        return playlistDao
+            .getPlaylistWithTracks(playlistId)
+            .map { it?.toDomain() }
     }
 
     override fun getAllPlaylists(): Flow<List<Playlist>> {
-        return database.getAllPlaylists()
+        return playlistDao
+            .getAllPlaylistsWithTracks()
+            .map { list -> list.map { it.toDomain() } }
     }
 
     override suspend fun addNewPlaylist(
@@ -28,72 +38,111 @@ class PlaylistsRepositoryImpl(
         description: String,
         coverUri: String?
     ) {
-        database.addNewPlaylist(name, description, coverUri)
+        playlistDao.insertPlaylist(
+            PlaylistEntity(
+                name = name,
+                description = description,
+                coverUri = coverUri
+            )
+        )
     }
 
-
     override suspend fun deletePlaylistById(id: Long) {
-        database.deletePlaylistById(id)
-        database.deleteTracksByPlaylistId(id)
+        playlistDao.deletePlaylistById(id)
+        tracksDao.deleteTracksByPlaylistId(id)
     }
 }
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient,
-    private val database: DatabaseMock
+    private val database: AppDatabase
 ) : TracksRepository {
+
+    private val tracksDao = database.TracksDao()
 
     override suspend fun searchTracks(expression: String): List<Track> {
         val request = TracksSearchRequest(expression)
         val response = networkClient.doRequest(request)
 
-        if (response.resultCode != 200 || response !is TracksSearchResponse) {
+        if (response !is TracksSearchResponse || response.resultCode != 200) {
             return emptyList()
         }
 
-        val result = mutableListOf<Track>()
-
-        for (dto in response.results) {
+        return response.results.map { dto ->
             val netTrack = dto.toDomain()
 
-            val localTrack = database.getTrackSync(netTrack.id)
+            val existingEntity = tracksDao.getTrackSync(netTrack.id)
+            val favoriteStatus = existingEntity?.favorite ?: false
 
-            if (localTrack != null) {
-                result.add(localTrack)
-            } else {
-                database.insertTrack(netTrack)
-                result.add(netTrack)
-            }
+            tracksDao.insertTrack(netTrack.toEntity().copy(favorite = favoriteStatus))
+
+
+            val playlistIds =
+                tracksDao.getPlaylistIdsForTrack(netTrack.id)
+
+            netTrack.copy(
+                playlistId = playlistIds.toMutableList()
+            )
         }
-
-        return result
     }
 
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {
-        return database.getTrackByNameAndArtist(track)
+        return tracksDao
+            .getTrackByNameAndArtist(track.trackName, track.artistName)
+            .map { entity ->
+                entity?.let {
+                    val playlistIds =
+                        tracksDao.getPlaylistIdsForTrack(it.id)
+                    it.toDomain(playlistIds)
+                }
+            }
     }
 
     override fun getTrackById(trackId: Long): Flow<Track?> {
-        return database.getTrackById(trackId)
+        return tracksDao
+            .getTrackById(trackId)
+            .map { entity ->
+                entity?.let {
+                    val playlistIds =
+                        tracksDao.getPlaylistIdsForTrack(it.id)
+                    it.toDomain(playlistIds)
+                }
+            }
     }
 
     override fun getFavoriteTracks(): Flow<List<Track>> {
-        return database.getFavoriteTracks()
+        return tracksDao
+            .getFavoriteTracks()
+            .map { list ->
+                list.map { entity ->
+                    val playlistIds =
+                        tracksDao.getPlaylistIdsForTrack(entity.id)
+                    entity.toDomain(playlistIds)
+                }
+            }
     }
 
     override suspend fun addTrackToPlaylist(trackId: Long, playlistId: Long) {
-        database.addTrackToPlaylist(trackId, playlistId)
+        tracksDao.addTrackToPlaylist(
+            PlaylistsTracks(
+                trackId = trackId,
+                playlistId = playlistId
+            )
+        )
     }
 
     override suspend fun deleteTrackFromPlaylist(trackId: Long, playlistId: Long) {
-        database.removeTrackFromPlaylist(trackId, playlistId)
+        tracksDao.removeTrackFromPlaylist(trackId, playlistId)
     }
 
     override suspend fun updateTrackFavoriteStatus(trackId: Long, isFavorite: Boolean) {
-        database.updateTrackFavoriteStatus(trackId, isFavorite)
+        val entity = tracksDao.getTrackSync(trackId) ?: return
+        tracksDao.insertTrack(
+            entity.copy(favorite = isFavorite)
+        )
     }
 
     override suspend fun deleteTracksByPlaylistId(playlistId: Long) {
-        database.deleteTracksByPlaylistId(playlistId)
+        tracksDao.deleteTracksByPlaylistId(playlistId)
     }
 }
