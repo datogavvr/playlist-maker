@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlist_maker.creator.Creator
-import com.practicum.playlist_maker.data.network.SearchHistoryRepositoryImpl
+import com.practicum.playlist_maker.domain.SearchHistoryRepository
 import com.practicum.playlist_maker.domain.TracksRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 import okio.IOException
 
 class SearchViewModel(
-    private val tracksRepository: TracksRepository
+    private val tracksRepository: TracksRepository,
+    private val historyRepository: SearchHistoryRepository
 ) : ViewModel() {
-    private val searchHistoryRepository = SearchHistoryRepositoryImpl(scope = viewModelScope)
     private val _searchScreenState = MutableStateFlow<SearchState>(SearchState.Initial)
     val searchScreenState  = _searchScreenState.asStateFlow()
     private val _history = MutableStateFlow<List<String>>(emptyList())
@@ -34,7 +34,7 @@ class SearchViewModel(
             try {
                 _searchScreenState.update { SearchState.Searching }
                 val list = tracksRepository.searchTracks(expression = whatSearch)
-                val lower = whatSearch.lowercase()
+                val lower = whatSearch.trim().lowercase()
                 val filtered = list.filter { track ->
                     track.trackName.lowercase().contains(lower) ||
                             track.artistName.lowercase().contains(lower)
@@ -52,13 +52,21 @@ class SearchViewModel(
 
     // загрузка 3 последних запросов
     suspend fun loadHistory() {
-        _history.value = searchHistoryRepository.getHistoryRequests().take(3)
+        _history.value = historyRepository.getHistoryRequests().take(3)
     }
 
     // сохранение запроса в историю
     suspend fun saveQueryToHistory(query: String) {
         if (query.isNotBlank()) {
-            searchHistoryRepository.addToHistory(query)
+            historyRepository.addToHistory(query)
+            loadHistory()
+        }
+    }
+
+    // удаление запроса из истории
+    fun removeQueryFromHistory(query: String) {
+        viewModelScope.launch {
+            historyRepository.removeFromHistory(query)
             loadHistory()
         }
     }
@@ -68,7 +76,10 @@ class SearchViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return SearchViewModel(Creator.getTracksRepository()) as T
+                    return SearchViewModel(
+                        tracksRepository = Creator.getTracksRepository(),
+                        historyRepository = Creator.getSearchHistoryRepository()
+                        ) as T
                 }
             }
     }
