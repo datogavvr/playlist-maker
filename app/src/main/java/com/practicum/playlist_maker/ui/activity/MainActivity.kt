@@ -114,7 +114,8 @@ fun GenericButton(
 fun MainScreen(
     onSearchClick: () -> Unit = {},
     onPlaylistsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onFavoritesClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     Scaffold { innerPadding ->
         Column(
@@ -168,7 +169,7 @@ fun MainScreen(
                     GenericButton(
                         icon = Icons.Filled.FavoriteBorder,
                         nameButton = stringResource(R.string.favorite),
-                        onClick = {},
+                        onClick = onFavoritesClick,
                         showToast = true
                     )
 
