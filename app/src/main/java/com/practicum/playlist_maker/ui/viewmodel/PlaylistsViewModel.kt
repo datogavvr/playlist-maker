@@ -6,7 +6,6 @@ import com.practicum.playlist_maker.creator.Creator
 import com.practicum.playlist_maker.data.network.Playlist
 import com.practicum.playlist_maker.data.network.Track
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,9 +19,6 @@ class PlaylistsViewModel() : ViewModel() {
 
     private val _playlists = MutableStateFlow<List<Playlist>>(emptyList())
     val playlists: StateFlow<List<Playlist>> = _playlists.asStateFlow()
-
-    val favoriteList: Flow<List<Track>> =
-        tracksRepository.getFavoriteTracks()
 
     init {
         loadPlaylists()
@@ -69,5 +65,16 @@ class PlaylistsViewModel() : ViewModel() {
 
     suspend fun isExist(track: Track): Track? {
         return tracksRepository.getTrackByNameAndArtist(track = track).firstOrNull()
+    }
+
+    fun trackWord(count: Int): String {
+        val rem100 = count % 100
+        val rem10 = count % 10
+        return when {
+            rem100 in 11..19 -> "треков"
+            rem10 == 1 -> "трек"
+            rem10 in 2..4 -> "трека"
+            else -> "треков"
+        }
     }
 }

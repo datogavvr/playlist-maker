@@ -91,7 +91,6 @@ fun PlaylistsScreen(
                     .padding(innerPadding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -132,6 +131,7 @@ fun PlaylistsScreen(
                         LazyColumn(modifier = Modifier.fillMaxSize()) {
                             items(playlists.asReversed()) { playlist ->
                                 PlaylistListItem(
+                                    viewModel = viewModel,
                                     playlist = playlist,
                                     onClick = {
                                         onPlaylistClick(playlist.id)
@@ -164,6 +164,7 @@ fun PlaylistsScreen(
 
 @Composable
 fun PlaylistListItem(
+    viewModel: PlaylistsViewModel,
     playlist: Playlist,
     onClick: () -> Unit
 ) {
@@ -202,9 +203,8 @@ fun PlaylistListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            val text = stringResource(R.string.count_tracks, playlist.tracks.size)
             Text(
-                text,
+                "${playlist.tracks.size} ${viewModel.trackWord(playlist.tracks.size)}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Gray
