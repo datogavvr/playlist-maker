@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.practicum.playlist_maker.creator.Creator
 import com.practicum.playlist_maker.ui.activity.MainScreen
 import com.practicum.playlist_maker.ui.screen.CreatePlaylistScreen
+import com.practicum.playlist_maker.ui.screen.FavoritesScreen
 import com.practicum.playlist_maker.ui.screen.PlaylistScreen
 import com.practicum.playlist_maker.ui.screen.PlaylistsScreen
 import com.practicum.playlist_maker.ui.screen.Screen
@@ -21,6 +22,7 @@ import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
 import com.practicum.playlist_maker.ui.screen.SearchScreen
 import com.practicum.playlist_maker.ui.screen.SettingsScreen
 import com.practicum.playlist_maker.ui.screen.TrackDetailsScreen
+import com.practicum.playlist_maker.ui.viewmodel.FavoritesViewModel
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistViewModel
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
 import com.practicum.playlist_maker.ui.viewmodel.TrackDetailsViewModel
@@ -43,6 +45,7 @@ fun PlaylistHost(navController: NavHostController) {
             MainScreen(
                 onSearchClick = { navController.navigate(Screen.SEARCH.name) },
                 onPlaylistsClick = {navController.navigate(Screen.ALL_PLAYLISTS.name) },
+                onFavoritesClick = {navController.navigate(Screen.FAVORITES.name) },
                 onSettingsClick = { navController.navigate(Screen.SETTINGS.name) }
             )
         }
@@ -133,6 +136,14 @@ fun PlaylistHost(navController: NavHostController) {
 
         // экран избранного
         composable(Screen.FAVORITES.name) {
+            val favoritesViewModel: FavoritesViewModel = viewModel()
+            FavoritesScreen(
+                favoritesViewModel = favoritesViewModel,
+                onTrackClick = { trackId ->
+                    navController.navigate("${Screen.TRACK_DETAILS.name}/$trackId")
+                },
+                onBack = { navController.popBackStack() }
+            )
         }
 
         // экран настроек
