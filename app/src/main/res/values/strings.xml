@@ -58,6 +58,9 @@
     <string name="cancel">Отмена</string>
     <string name="playlist_not_found">Плейлист не найден</string>
 
+    <!-- FavoritessScreen -->
+    <string name="no_favorites_hint">Список избранного пуст</string>
+
     <!-- SettingsScreen -->
     <string name="theme">Тема приложения</string>
     <string name="system">Системная</string>

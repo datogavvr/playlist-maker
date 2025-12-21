@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker.data.database
 
+import com.practicum.playlist_maker.data.database.entity.PlaylistEntity
 import com.practicum.playlist_maker.data.database.entity.TrackEntity
 import com.practicum.playlist_maker.data.database.relation.PlaylistWithTracks
 import com.practicum.playlist_maker.data.network.Playlist
@@ -10,12 +11,12 @@ fun TrackEntity.toDomain(
 ): Track {
     return Track(
         id = id,
-        trackName = trackName ?: "Unknown",
-        artistName = artistName ?: "Unknown",
+        trackName = trackName,
+        artistName = artistName,
         trackTimeMillis = trackTimeMillis ?: 0L,
-        trackTime = trackTime ?: "0:00",
+        trackTime = trackTime,
         image = image,
-        favorite = favorite,
+        favorite = playlistIds.contains(0L),
         playlistId = playlistIds.toMutableList()
     )
 }
@@ -23,19 +24,28 @@ fun TrackEntity.toDomain(
 fun Track.toEntity(): TrackEntity {
     return TrackEntity(
         id = id,
-        trackName = trackName ?: "Unknown",
-        artistName = artistName ?: "Unknown",
+        trackName = trackName,
+        artistName = artistName,
         trackTimeMillis = trackTimeMillis ?: 0L,
-        trackTime = trackTime ?: "0:00",
-        image = image,
-        favorite = favorite
+        trackTime = trackTime,
+        image = image
+    )
+}
+
+fun PlaylistEntity.toDomain(): Playlist {
+    return Playlist(
+        id = id,
+        playlistName = name,
+        description = description ?: "",
+        coverUri = coverUri,
+        tracks = emptyList()
     )
 }
 
 fun PlaylistWithTracks.toDomain(): Playlist {
     return Playlist(
         id = playlist.id,
-        playlistName = playlist.name ?: "Unknown",
+        playlistName = playlist.name,
         description = playlist.description ?: "",
         coverUri = playlist.coverUri,
         tracks = tracks.map {

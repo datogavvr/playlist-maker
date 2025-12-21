@@ -2,7 +2,6 @@ package com.practicum.playlist_maker.ui.activity
 
 import PlaylistHost
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -34,20 +33,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.practicum.playlist_maker.R
+import com.practicum.playlist_maker.creator.Creator
 import com.practicum.playlist_maker.ui.theme.PlaylistmakerTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    private val playlistsRepository = Creator.getPlaylistsRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            playlistsRepository.ensureFavoritePlaylistExists()
+        }
         setContent {
             PlaylistmakerTheme {
                 val navController = rememberNavController()
@@ -62,17 +68,9 @@ fun GenericButton(
     icon: ImageVector,
     nameButton: String,
     onClick: () -> Unit,
-    showToast: Boolean = false
 ) {
-    val context = LocalContext.current
-
     Button(
-        onClick = {
-            if (showToast) {
-                Toast.makeText(context, "Нажата кнопка \"$nameButton\"", Toast.LENGTH_SHORT).show()
-            }
-            onClick()
-        },
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(dimensionResource(R.dimen.button_height)),
@@ -114,7 +112,8 @@ fun GenericButton(
 fun MainScreen(
     onSearchClick: () -> Unit = {},
     onPlaylistsClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onFavoritesClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     Scaffold { innerPadding ->
         Column(
@@ -168,8 +167,7 @@ fun MainScreen(
                     GenericButton(
                         icon = Icons.Filled.FavoriteBorder,
                         nameButton = stringResource(R.string.favorite),
-                        onClick = {},
-                        showToast = true
+                        onClick = onFavoritesClick,
                     )
 
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))

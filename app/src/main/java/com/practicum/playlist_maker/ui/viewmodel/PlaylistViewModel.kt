@@ -18,7 +18,7 @@ class PlaylistViewModel(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    val playlist: StateFlow<Playlist?> =
+    val playlist: Flow<Playlist?> =
         playlistsRepository.getPlaylist(playlistId)
             .onEach { _isLoading.value = false }
             .stateIn(viewModelScope, SharingStarted.Lazily, null)

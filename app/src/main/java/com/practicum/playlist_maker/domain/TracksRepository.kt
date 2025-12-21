@@ -5,14 +5,26 @@ import com.practicum.playlist_maker.data.network.Track
 import kotlinx.coroutines.flow.Flow
 
 interface PlaylistsRepository {
-
+    // получение плейлиста по id
     fun getPlaylist(playlistId: Long): Flow<Playlist?>
 
+    // получение всех плейлистов
     fun getAllPlaylists(): Flow<List<Playlist>>
 
+    // получение избранного с его параметрами
+    suspend fun getFavoritePlaylistOnce(): Playlist?
+
+    // получение потока с избранным
+    fun getFavoritePlaylist(): Flow<Playlist?>
+
+    // добавление плейлиста
     suspend fun addNewPlaylist(name: String, description: String, coverUri: String?)
 
+    // удаление плейлиста по id
     suspend fun deletePlaylistById(id: Long)
+
+    // проверка наличия плейлиста для избранного
+    suspend fun ensureFavoritePlaylistExists()
 }
 
 

@@ -61,7 +61,7 @@ fun PlaylistScreen(
         return
     }
 
-    val tracks = remember(playlist.tracks) { playlist.tracks.asReversed() }
+    val tracks = playlist.tracks
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetOpen by remember { mutableStateOf(false) }
@@ -145,16 +145,20 @@ fun PlaylistScreen(
             Spacer(Modifier.height(dimensionResource(R.dimen.space_16)))
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = dimensionResource(R.dimen.padding_24))
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(
+                    bottom = dimensionResource(R.dimen.padding_24)
+                )
             ) {
-                items(tracks, key = { it.id }) { track ->
+                items(
+                    items = tracks,
+                    key = { it.id }
+                ) { track ->
                     PlaylistTrackItem(
                         track = track,
                         onClick = { onTrackClick(track.id) },
-                        onLongClick = {
-                            trackToDelete = track
-                        }
+                        onLongClick = { trackToDelete = track }
                     )
                 }
             }

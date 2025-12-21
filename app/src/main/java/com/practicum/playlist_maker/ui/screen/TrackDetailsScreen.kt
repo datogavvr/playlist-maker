@@ -9,12 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -41,16 +37,11 @@ fun TrackDetailsScreen(
     viewModel: TrackDetailsViewModel,
     onBack: () -> Unit
 ) {
-    val track by viewModel.getTrack(trackId).collectAsState(initial = null)
-    val playlists by viewModel.getPlaylists().collectAsState(initial = emptyList())
+    val track by viewModel.trackState.collectAsState(initial = null)
+    val playlists by viewModel.playlists.collectAsState(initial = emptyList())
 
-    // локальные state
-    val playlistIdsState = remember { mutableStateOf<Set<Long>>(emptySet()) }
-    val favoriteState = remember { mutableStateOf(false) }
-
-    LaunchedEffect(track) {
-        playlistIdsState.value = track?.playlistId?.toSet() ?: emptySet()
-        favoriteState.value = track?.favorite ?: false
+    LaunchedEffect(trackId) {
+        viewModel.loadTrack(trackId)
     }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -81,12 +72,11 @@ fun TrackDetailsScreen(
     ) { innerPadding ->
         track?.let { t ->
             TrackDetailsContent(
-                track = t.copy(favorite = favoriteState.value),
+                track = t,
                 modifier = Modifier.padding(innerPadding),
                 onAddToPlaylist = { isSheetOpen = true },
-                onToggleFavorite = { newValue ->
-                    favoriteState.value = newValue
-                    viewModel.updateTrackFavoriteStatus(t.id, newValue)
+                onToggleFavorite = {
+                    viewModel.toggleFavorite()
                 }
             )
         } ?: Box(
@@ -111,29 +101,21 @@ fun TrackDetailsScreen(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_16))
             )
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                items(playlists.asReversed(), key = { it.id }) { playlist ->
-                    val currentSet by rememberUpdatedState(playlistIdsState.value)
-                    val trackInPlaylist = currentSet.contains(playlist.id)
+            LazyColumn {
+                items(
+                    items = playlists.asReversed(),
+                    key = { it.id }
+                ) { playlist ->
+                    val trackInPlaylist = track?.playlistId?.contains(playlist.id) == true
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                playlistIdsState.value = if (trackInPlaylist) {
-                                    currentSet - playlist.id
+                                if (trackInPlaylist) {
+                                    viewModel.deleteTrackFromPlaylist(playlist.id)
                                 } else {
-                                    currentSet + playlist.id
-                                }
-
-                                if (track != null) {
-                                    if (!trackInPlaylist) {
-                                        viewModel.addTrackToPlaylist(track, playlist.id)
-                                    } else {
-                                        viewModel.deleteTrackFromPlaylist(track, playlist.id)
-                                    }
+                                    viewModel.addTrackToPlaylist(playlist.id)
                                 }
                             }
                             .padding(
@@ -189,8 +171,8 @@ fun TrackDetailsScreen(
 fun TrackDetailsContent(
     track: Track,
     modifier: Modifier = Modifier,
-    onAddToPlaylist: () -> Unit = {},
-    onToggleFavorite: (Boolean) -> Unit = {}
+    onAddToPlaylist: () -> Unit,
+    onToggleFavorite: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -206,7 +188,12 @@ fun TrackDetailsContent(
             error = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier
                 .size(dimensionResource(R.dimen.medium_cover_size))
-                .clip(RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius)))
+                .clip(
+                    RoundedCornerShape(
+                        dimensionResource(R.dimen.cover_corner_radius)
+                    )
+                ),
+            contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_20)))
@@ -250,17 +237,18 @@ fun TrackDetailsContent(
 
             // кнопка "Добавить в избранное"
             IconButton(
-                onClick = {
-                    onToggleFavorite(!track.favorite)
-                },
+                onClick = onToggleFavorite,
                 modifier = Modifier
                     .size(dimensionResource(R.dimen.size_56))
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(MaterialTheme.colorScheme.primary)
             ) {
                 Icon(
-                    imageVector = if (track.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = stringResource(R.string.add_to_favorite),
+                    imageVector = if (track.favorite)
+                        Icons.Filled.Favorite
+                    else
+                        Icons.Filled.FavoriteBorder,
+                    contentDescription = null,
                     tint = Color.White
                 )
             }
@@ -268,7 +256,10 @@ fun TrackDetailsContent(
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
-        DetailRow(title = stringResource(R.string.duration), value = track.trackTime)
+        DetailRow(
+            title = stringResource(R.string.duration),
+            value = track.trackTime
+        )
     }
 }
 
@@ -280,7 +271,16 @@ fun DetailRow(title: String, value: String) {
             .padding(vertical = dimensionResource(R.dimen.padding_6)),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Gray)
-        Text(text = value, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Gray
+        )
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }

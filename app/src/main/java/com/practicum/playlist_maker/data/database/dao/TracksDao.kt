@@ -23,7 +23,20 @@ interface TracksDao {
     @Query("SELECT * FROM tracks WHERE id = :trackId")
     fun getTrackById(trackId: Long): Flow<TrackEntity?>
 
-    @Query("SELECT * FROM tracks WHERE favorite = 1")
+    @Query("""
+    SELECT t.* FROM tracks t
+    INNER JOIN playlists_tracks pt ON t.id = pt.trackId
+    WHERE pt.playlistId = :playlistId
+    ORDER BY pt.position DESC
+""")
+    fun getTracksForPlaylist(playlistId: Long): Flow<List<TrackEntity>>
+
+    @Query("""
+    SELECT * FROM tracks
+    INNER JOIN playlists_tracks ON tracks.id = playlists_tracks.trackId
+    INNER JOIN playlists ON playlists.id = playlists_tracks.playlistId
+    WHERE playlists.isSystem = 1
+""")
     fun getFavoriteTracks(): Flow<List<TrackEntity>>
 
     @Query("SELECT * FROM tracks WHERE id = :trackId")
@@ -37,7 +50,7 @@ interface TracksDao {
         WHERE trackId = :trackId AND playlistId = :playlistId
     """)
     suspend fun removeTrackFromPlaylist(
-        trackId: Long,
+        trackId: Long?,
         playlistId: Long
     )
 
@@ -52,4 +65,10 @@ interface TracksDao {
         WHERE trackId = :trackId
     """)
     suspend fun getPlaylistIdsForTrack(trackId: Long): List<Long>
+
+    @Query("""
+        SELECT MAX(position) FROM playlists_tracks
+        WHERE playlistId = :playlistId
+    """)
+    suspend fun getLastPositionInPlaylist(playlistId: Long): Long?
 }

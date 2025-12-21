@@ -19,8 +19,15 @@ interface PlaylistsDao {
     fun getPlaylistWithTracks(playlistId: Long): Flow<PlaylistWithTracks?>
 
     @Transaction
-    @Query("SELECT * FROM playlists")
+    @Query("SELECT * FROM playlists WHERE isSystem = 0")
     fun getAllPlaylistsWithTracks(): Flow<List<PlaylistWithTracks>>
+
+    @Query("SELECT * FROM playlists WHERE isSystem = 1 LIMIT 1")
+    suspend fun getFavoritePlaylistOnce(): PlaylistEntity?
+
+    @Transaction
+    @Query("SELECT * FROM playlists WHERE isSystem = 1 LIMIT 1")
+    fun getFavoritePlaylist(): Flow<PlaylistWithTracks?>
 
     @Query("DELETE FROM playlists WHERE id = :id")
     suspend fun deletePlaylistById(id: Long)
