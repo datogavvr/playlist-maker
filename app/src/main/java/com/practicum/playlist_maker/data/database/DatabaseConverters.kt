@@ -11,10 +11,10 @@ fun TrackEntity.toDomain(
 ): Track {
     return Track(
         id = id,
-        trackName = trackName ?: "Unknown",
-        artistName = artistName ?: "Unknown",
+        trackName = trackName,
+        artistName = artistName,
         trackTimeMillis = trackTimeMillis ?: 0L,
-        trackTime = trackTime ?: "0:00",
+        trackTime = trackTime,
         image = image,
         favorite = playlistIds.contains(0L),
         playlistId = playlistIds.toMutableList()
@@ -24,10 +24,10 @@ fun TrackEntity.toDomain(
 fun Track.toEntity(): TrackEntity {
     return TrackEntity(
         id = id,
-        trackName = trackName ?: "Unknown",
-        artistName = artistName ?: "Unknown",
+        trackName = trackName,
+        artistName = artistName,
         trackTimeMillis = trackTimeMillis ?: 0L,
-        trackTime = trackTime ?: "0:00",
+        trackTime = trackTime,
         image = image
     )
 }
@@ -35,7 +35,7 @@ fun Track.toEntity(): TrackEntity {
 fun PlaylistEntity.toDomain(): Playlist {
     return Playlist(
         id = id,
-        playlistName = name ?: "Unknown",
+        playlistName = name,
         description = description ?: "",
         coverUri = coverUri,
         tracks = emptyList()
@@ -45,7 +45,7 @@ fun PlaylistEntity.toDomain(): Playlist {
 fun PlaylistWithTracks.toDomain(): Playlist {
     return Playlist(
         id = playlist.id,
-        playlistName = playlist.name ?: "Unknown",
+        playlistName = playlist.name,
         description = playlist.description ?: "",
         coverUri = playlist.coverUri,
         tracks = tracks.map {
