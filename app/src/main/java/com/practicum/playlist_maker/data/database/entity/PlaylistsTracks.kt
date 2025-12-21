@@ -8,5 +8,6 @@ import androidx.room.Entity
 )
 data class PlaylistsTracks(
     val playlistId: Long,
-    val trackId: Long
+    val trackId: Long,
+    val position: Long
 )
