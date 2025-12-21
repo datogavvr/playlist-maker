@@ -1,5 +1,6 @@
 package com.practicum.playlist_maker.data.database
 
+import com.practicum.playlist_maker.data.database.entity.PlaylistEntity
 import com.practicum.playlist_maker.data.database.entity.TrackEntity
 import com.practicum.playlist_maker.data.database.relation.PlaylistWithTracks
 import com.practicum.playlist_maker.data.network.Playlist
@@ -15,7 +16,7 @@ fun TrackEntity.toDomain(
         trackTimeMillis = trackTimeMillis ?: 0L,
         trackTime = trackTime ?: "0:00",
         image = image,
-        favorite = favorite,
+        favorite = playlistIds.contains(0L),
         playlistId = playlistIds.toMutableList()
     )
 }
@@ -27,8 +28,17 @@ fun Track.toEntity(): TrackEntity {
         artistName = artistName ?: "Unknown",
         trackTimeMillis = trackTimeMillis ?: 0L,
         trackTime = trackTime ?: "0:00",
-        image = image,
-        favorite = favorite
+        image = image
+    )
+}
+
+fun PlaylistEntity.toDomain(): Playlist {
+    return Playlist(
+        id = id,
+        playlistName = name ?: "Unknown",
+        description = description ?: "",
+        coverUri = coverUri,
+        tracks = emptyList()
     )
 }
 

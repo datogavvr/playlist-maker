@@ -12,6 +12,7 @@ import com.practicum.playlist_maker.domain.NetworkClient
 import com.practicum.playlist_maker.domain.PlaylistsRepository
 import com.practicum.playlist_maker.domain.TracksRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class PlaylistsRepositoryImpl(
@@ -33,6 +34,21 @@ class PlaylistsRepositoryImpl(
             .map { list -> list.map { it.toDomain() } }
     }
 
+    override suspend fun getFavoritePlaylistOnce(): Playlist? {
+        ensureFavoritePlaylistExists()
+
+        val entity = playlistDao.getFavoritePlaylistOnce()
+        return entity?.toDomain()
+    }
+
+    override fun getFavoritePlaylist(): Flow<Playlist?> = flow {
+        ensureFavoritePlaylistExists()
+
+        playlistDao.getFavoritePlaylist()
+            .map { it?.toDomain() }
+            .collect { emit(it) }
+    }
+
     override suspend fun addNewPlaylist(
         name: String,
         description: String,
@@ -50,6 +66,17 @@ class PlaylistsRepositoryImpl(
     override suspend fun deletePlaylistById(id: Long) {
         playlistDao.deletePlaylistById(id)
         tracksDao.deleteTracksByPlaylistId(id)
+    }
+
+    override suspend fun ensureFavoritePlaylistExists() {
+        val favorite = playlistDao.getFavoritePlaylistOnce()
+        if (favorite != null) return
+
+        val newFavorite = PlaylistEntity(
+            name = "Избранное",
+            isSystem = true
+        )
+        playlistDao.insertPlaylist(newFavorite)
     }
 }
 
@@ -71,11 +98,7 @@ class TracksRepositoryImpl(
         return response.results.map { dto ->
             val netTrack = dto.toDomain()
 
-            val existingEntity = tracksDao.getTrackSync(netTrack.id)
-            val favoriteStatus = existingEntity?.favorite ?: false
-
-            tracksDao.insertTrack(netTrack.toEntity().copy(favorite = favoriteStatus))
-
+            tracksDao.insertTrack(netTrack.toEntity())
 
             val playlistIds =
                 tracksDao.getPlaylistIdsForTrack(netTrack.id)
@@ -123,10 +146,13 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun addTrackToPlaylist(trackId: Long, playlistId: Long) {
+        val lastPosition = tracksDao.getLastPositionInPlaylist(playlistId) ?: -1
+
         tracksDao.addTrackToPlaylist(
             PlaylistsTracks(
                 trackId = trackId,
-                playlistId = playlistId
+                playlistId = playlistId,
+                position = lastPosition + 1
             )
         )
     }
@@ -136,10 +162,26 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun updateTrackFavoriteStatus(trackId: Long, isFavorite: Boolean) {
-        val entity = tracksDao.getTrackSync(trackId) ?: return
-        tracksDao.insertTrack(
-            entity.copy(favorite = isFavorite)
-        )
+        val favoritePlaylist =
+            database.PlaylistsDao().getFavoritePlaylistOnce() ?: return
+
+        val lastPosition =
+            tracksDao.getLastPositionInPlaylist(favoritePlaylist.id) ?: -1
+
+        if (isFavorite) {
+            tracksDao.addTrackToPlaylist(
+                PlaylistsTracks(
+                    trackId = trackId,
+                    playlistId = favoritePlaylist.id,
+                    position = lastPosition + 1
+                )
+            )
+        } else {
+            tracksDao.removeTrackFromPlaylist(
+                trackId = trackId,
+                playlistId = favoritePlaylist.id
+            )
+        }
     }
 
     override suspend fun deleteTracksByPlaylistId(playlistId: Long) {

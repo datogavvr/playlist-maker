@@ -11,6 +11,5 @@ data class TrackEntity(
     val artistName: String = "Unknown",
     val trackTimeMillis: Long? = 0L,
     val trackTime: String = "0:00",
-    val image: String? = null,
-    val favorite: Boolean = false,
+    val image: String? = null
 )
