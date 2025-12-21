@@ -26,6 +26,7 @@
     <string name="description">Описание</string>
     <string name="create">Создать</string>
     <string name="playlist_not_found">Плейлист не найден</string>
+    <string name="no_favorites_hint">Список избранного пуст</string>
     <string name="theme">Тема приложения</string>
     <string name="system">Системная</string>
     <string name="light">Светлая</string>

@@ -26,6 +26,7 @@
     <string name="description">Description</string>
     <string name="create">Create</string>
     <string name="playlist_not_found">Playlist was not found</string>
+    <string name="no_favorites_hint">The favorites list is empty</string>
     <string name="theme">App theme</string>
     <string name="system">System</string>
     <string name="light">Light</string>
