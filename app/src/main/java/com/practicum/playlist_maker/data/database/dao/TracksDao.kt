@@ -24,18 +24,20 @@ interface TracksDao {
     fun getTrackById(trackId: Long): Flow<TrackEntity?>
 
     @Query("""
-    SELECT t.* FROM tracks t
+    SELECT * FROM tracks t
     INNER JOIN playlists_tracks pt ON t.id = pt.trackId
+    INNER JOIN playlists p ON p.id = pt.playlistId
     WHERE pt.playlistId = :playlistId
     ORDER BY pt.position DESC
 """)
     fun getTracksForPlaylist(playlistId: Long): Flow<List<TrackEntity>>
 
     @Query("""
-    SELECT * FROM tracks
-    INNER JOIN playlists_tracks ON tracks.id = playlists_tracks.trackId
-    INNER JOIN playlists ON playlists.id = playlists_tracks.playlistId
-    WHERE playlists.isSystem = 1
+    SELECT * FROM tracks t
+    INNER JOIN playlists_tracks pt ON t.id = pt.trackId
+    INNER JOIN playlists p ON p.id = pt.playlistId
+    WHERE p.isSystem = 1
+    ORDER BY pt.position DESC
 """)
     fun getFavoriteTracks(): Flow<List<TrackEntity>>
 
