@@ -105,7 +105,7 @@ fun PlaylistsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.LibraryMusic,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.no_playlists_hint1),
                                 modifier = Modifier.size(dimensionResource(R.dimen.size_40)),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
