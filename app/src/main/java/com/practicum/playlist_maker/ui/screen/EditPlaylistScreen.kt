@@ -1,20 +1,29 @@
 package com.practicum.playlist_maker.ui.screen
 
-import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddPhotoAlternate
@@ -23,39 +32,41 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.practicum.playlist_maker.R
-import com.practicum.playlist_maker.ui.viewmodel.PlaylistsViewModel
 import java.io.File
+import androidx.core.net.toUri
+import com.practicum.playlist_maker.ui.viewmodel.PlaylistViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun CreatePlaylistScreen(
+fun EditPlaylistScreen(
     onBack: () -> Unit,
-    viewModel: PlaylistsViewModel = viewModel()
+    viewModel: PlaylistViewModel = viewModel()
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    val playlist = viewModel.playlist.collectAsState(initial = null).value
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+    var title by remember { mutableStateOf(playlist?.playlistName ?: "") }
+    var description by remember { mutableStateOf(playlist?.description ?: "") }
     var titleFocused by remember { mutableStateOf(false) }
     var descriptionFocused by remember { mutableStateOf(false) }
-    var coverUri by remember { mutableStateOf<Uri?>(null) }
+    var coverUri by remember { mutableStateOf<Uri?>(playlist?.coverUri?.toUri()) }
     var showImagePickerDialog by remember { mutableStateOf(false) }
 
     val isNameValid = title.isNotBlank() && title.length <= 50
@@ -95,7 +106,7 @@ fun CreatePlaylistScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.new_playlist),
+                        text = playlist?.playlistName ?: "",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -114,7 +125,8 @@ fun CreatePlaylistScreen(
             Button(
                 onClick = {
                     if (isNameValid && isDescriptionValid) {
-                        viewModel.createNewPlayList(
+                        viewModel.updatePlaylist(
+                            playlistId = playlist!!.id,
                             playlistName = title.trim(),
                             description = description.trim(),
                             coverUri = coverUri?.toString()
@@ -140,7 +152,7 @@ fun CreatePlaylistScreen(
                 )
             ) {
                 Text(
-                    text = stringResource(R.string.create),
+                    text = stringResource(R.string.save),
                     fontSize = 16.sp,
                     color = if (isNameValid && isDescriptionValid)
                         MaterialTheme.colorScheme.onPrimary
@@ -254,103 +266,5 @@ fun CreatePlaylistScreen(
             containerColor = MaterialTheme.colorScheme.background,
             confirmButton = {}
         )
-    }
-}
-
-fun createImageUri(context: Context): Uri {
-    val contentValues = android.content.ContentValues().apply {
-        put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "cover_${System.currentTimeMillis()}.jpg")
-        put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-    }
-    return context.contentResolver.insert(
-        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        contentValues
-    )!!
-}
-
-fun saveUriToInternalStorage(context: Context, uri: Uri): String {
-    val fileName = "cover_${System.currentTimeMillis()}.jpg"
-    val file = File(context.filesDir, fileName)
-    context.contentResolver.openInputStream(uri)?.use { input ->
-        file.outputStream().use { output ->
-            input.copyTo(output)
-        }
-    }
-    return file.absolutePath
-}
-
-@Composable
-fun LabeledTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    isError: Boolean,
-    isFocused: Boolean,
-    onFocusChange: (Boolean) -> Unit,
-    singleLine: Boolean = true
-) {
-    val hasText = value.isNotEmpty()
-
-    val borderColor =
-        if (isFocused) MaterialTheme.colorScheme.surfaceVariant
-        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = dimensionResource(R.dimen.padding_16), vertical = dimensionResource(R.dimen.padding_12))
-            .border(
-                width = dimensionResource(R.dimen.width_1_5),
-                color = borderColor,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius))
-            )
-            .padding(horizontal = dimensionResource(R.dimen.padding_12), vertical = dimensionResource(R.dimen.padding_4))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            AnimatedVisibility(
-                visible = isFocused || hasText,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Text(
-                    text = label,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant ,
-                )
-            }
-
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = singleLine,
-                placeholder = {
-                    if (!hasText && !isFocused) {
-                        Text(
-                            text = label,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                textStyle = TextStyle(
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                isError = isError,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { onFocusChange(it.isFocused) }
-            )
-        }
     }
 }

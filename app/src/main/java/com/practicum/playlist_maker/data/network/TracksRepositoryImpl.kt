@@ -63,6 +63,22 @@ class PlaylistsRepositoryImpl(
         )
     }
 
+    override suspend fun updatePlaylist(
+        playlistId: Long,
+        playlistName: String,
+        description: String?,
+        coverUri: String?
+    ) {
+        playlistDao.updatePlaylist(
+            PlaylistEntity(
+                id = playlistId,
+                name = playlistName,
+                description = description,
+                coverUri = coverUri
+            )
+        )
+    }
+
     override suspend fun deletePlaylistById(id: Long) {
         playlistDao.deletePlaylistById(id)
         tracksDao.deleteTracksByPlaylistId(id)
@@ -129,6 +145,18 @@ class TracksRepositoryImpl(
                     val playlistIds =
                         tracksDao.getPlaylistIdsForTrack(it.id)
                     it.toDomain(playlistIds)
+                }
+            }
+    }
+
+    override fun getTracksByPlaylistId(playlistId: Long): Flow<List<Track>> {
+        return tracksDao
+            .getTracksForPlaylist(playlistId)
+            .map { list ->
+                list.map { entity ->
+                    val playlistIds =
+                        tracksDao.getPlaylistIdsForTrack(entity.id)
+                    entity.toDomain(playlistIds)
                 }
             }
     }

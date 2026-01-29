@@ -40,7 +40,7 @@ private val DarkColorScheme = darkColorScheme(
     outline = MyGray,
     outlineVariant = MyLightGray,
 
-    error = Color(0xFFCF6679),
+    error = MyRed,
     onError = Color.Black,
     errorContainer = Color(0xFFB00020),
     onErrorContainer = Color.White
@@ -73,7 +73,7 @@ private val LightColorScheme = lightColorScheme(
     outline = Color(0xFFE0E0E0),
     outlineVariant = Color(0xFFEEEEEE),
 
-    error = Color(0xFFB00020),
+    error = MyRed,
     onError = Color.White,
     errorContainer = Color(0xFFFCD8DF),
     onErrorContainer = Color(0xFF690005)

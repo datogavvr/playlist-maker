@@ -7,9 +7,12 @@ import androidx.room.PrimaryKey
 data class TrackEntity(
     @PrimaryKey
     val id: Long,
-    val trackName: String = "Unknown",
-    val artistName: String = "Unknown",
-    val trackTimeMillis: Long? = 0L,
-    val trackTime: String = "0:00",
-    val image: String? = null
+    val trackName: String,
+    val artistName: String,
+    val trackTimeMillis: Long?,
+    val trackTime: String,
+    val image: String?,
+    val genre: String?,          // жанр
+    val releaseDate: String?,    // дата релиза
+    val isExplicit: Boolean?,    // возрастное ограничение
 )

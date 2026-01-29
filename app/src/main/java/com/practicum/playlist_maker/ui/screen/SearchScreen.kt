@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material3.Button
@@ -59,12 +60,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.ui.viewmodel.SearchState
 import com.practicum.playlist_maker.ui.viewmodel.SearchViewModel
 import com.practicum.playlist_maker.data.network.Track
+import com.practicum.playlist_maker.ui.theme.MyOrange
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,7 +149,7 @@ fun SearchScreen(
                     TextField(
                         value = searchText,
                         onValueChange = {
-                            searchText = it
+                            searchText = it.trimStart()
                             viewModel.search(searchText)
                         },
                         modifier = Modifier.weight(1f),
@@ -266,7 +269,7 @@ fun SearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.History,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.search),
                             modifier = Modifier.size(dimensionResource(R.dimen.size_40)),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -308,7 +311,7 @@ fun SearchScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.SentimentVeryDissatisfied,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.nothing_found),
                                 modifier = Modifier.size(dimensionResource(R.dimen.size_56)),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -351,7 +354,7 @@ fun SearchScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.SentimentVeryDissatisfied,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.server_error),
                             modifier = Modifier.size(dimensionResource(R.dimen.size_56)),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -410,13 +413,30 @@ fun TrackListItem(
             modifier = Modifier.weight(0.85f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = track.trackName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = track.trackName,
+                    modifier = Modifier.weight(1f, fill = false),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (track.isExplicit) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Report,
+                        contentDescription = stringResource(R.string.explicit_track),
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = MyOrange
+                    )
+                }
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

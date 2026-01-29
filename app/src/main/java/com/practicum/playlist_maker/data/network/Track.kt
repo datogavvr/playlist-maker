@@ -8,5 +8,8 @@ data class Track(
     val trackTime: String,
     val image: String?,
     var favorite: Boolean,
-    var playlistId: MutableList<Long>
+    var playlistId: MutableList<Long>,
+    val genre: String?,
+    val releaseDate: String?,
+    val isExplicit: Boolean
 )
