@@ -58,13 +58,14 @@ fun CreatePlaylistScreen(
     var coverUri by remember { mutableStateOf<Uri?>(null) }
     var showImagePickerDialog by remember { mutableStateOf(false) }
 
-    val isCreateEnabled = title.isNotBlank()
+    val isNameValid = title.isNotBlank() && title.length <= 50
+    val isDescriptionValid = description.length <= 100
     val focusManager: FocusManager = LocalFocusManager.current
 
     val context = LocalContext.current
 
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
@@ -80,6 +81,12 @@ fun CreatePlaylistScreen(
     ) { success: Boolean ->
         if (success && tempCameraUri != null) {
             coverUri = tempCameraUri
+        }
+    }
+
+    LaunchedEffect(cameraPermissionState.status) {
+        if (cameraPermissionState.status.isGranted && tempCameraUri != null) {
+            cameraLauncher.launch(tempCameraUri!!)
         }
     }
 
@@ -106,15 +113,17 @@ fun CreatePlaylistScreen(
         bottomBar = {
             Button(
                 onClick = {
-                    if (isCreateEnabled) {
+                    if (isNameValid && isDescriptionValid) {
                         viewModel.createNewPlayList(
-                            playlistName = title,
-                            description = description,
+                            playlistName = title.trim(),
+                            description = description.trim(),
                             coverUri = coverUri?.toString()
                         )
                         onBack()
-                    } else {
+                    } else if (!isNameValid) {
                         Toast.makeText(context, R.string.title_hint, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, R.string.description_hint, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
@@ -124,7 +133,7 @@ fun CreatePlaylistScreen(
                     .fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isCreateEnabled)
+                    containerColor = if (isNameValid && isDescriptionValid)
                         MaterialTheme.colorScheme.primary
                     else
                         MaterialTheme.colorScheme.surfaceVariant
@@ -133,7 +142,7 @@ fun CreatePlaylistScreen(
                 Text(
                     text = stringResource(R.string.create),
                     fontSize = 16.sp,
-                    color = if (isCreateEnabled)
+                    color = if (isNameValid && isDescriptionValid)
                         MaterialTheme.colorScheme.onPrimary
                     else
                         MaterialTheme.colorScheme.onSurfaceVariant
@@ -176,7 +185,7 @@ fun CreatePlaylistScreen(
                 } else {
                     Image(
                         painter = rememberAsyncImagePainter(coverUri),
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.cover),
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -185,16 +194,18 @@ fun CreatePlaylistScreen(
 
             LabeledTextField(
                 value = title,
-                onValueChange = { title = it },
+                onValueChange = { title = it.trimStart() },
                 label = stringResource(R.string.title),
+                isError = title.isNotBlank() && !isNameValid,
                 isFocused = titleFocused,
                 onFocusChange = { titleFocused = it },
             )
 
             LabeledTextField(
                 value = description,
-                onValueChange = { description = it },
+                onValueChange = { description = it.trimStart() },
                 label = stringResource(R.string.description),
+                isError = !isDescriptionValid,
                 isFocused = descriptionFocused,
                 onFocusChange = { descriptionFocused = it },
                 singleLine = false
@@ -228,8 +239,8 @@ fun CreatePlaylistScreen(
                             .fillMaxWidth()
                             .clickable {
                                 showImagePickerDialog = false
+                                tempCameraUri = createImageUri(context)
                                 if (cameraPermissionState.status.isGranted) {
-                                    tempCameraUri = createImageUri(context)
                                     cameraLauncher.launch(tempCameraUri!!)
                                 } else {
                                     cameraPermissionState.launchPermissionRequest()
@@ -241,11 +252,9 @@ fun CreatePlaylistScreen(
                 }
             },
             containerColor = MaterialTheme.colorScheme.background,
-            confirmButton = {},
-            dismissButton = {}
+            confirmButton = {}
         )
     }
-
 }
 
 fun createImageUri(context: Context): Uri {
@@ -275,6 +284,7 @@ fun LabeledTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    isError: Boolean,
     isFocused: Boolean,
     onFocusChange: (Boolean) -> Unit,
     singleLine: Boolean = true
@@ -335,6 +345,7 @@ fun LabeledTextField(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
+                isError = isError,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 modifier = Modifier
                     .fillMaxWidth()
