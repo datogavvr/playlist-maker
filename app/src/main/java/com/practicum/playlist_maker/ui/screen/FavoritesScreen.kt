@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +22,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Track
+import com.practicum.playlist_maker.ui.theme.MyOrange
 import com.practicum.playlist_maker.ui.viewmodel.FavoritesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +79,7 @@ fun FavoritesScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MusicNote,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.no_favorites_hint),
                             modifier = Modifier.size(dimensionResource(R.dimen.size_40)),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -99,7 +102,7 @@ fun FavoritesScreen(
                         )
                     ) {
                         items(
-                            items = favoriteList.asReversed(),
+                            items = favoriteList,
                             key = { it.id }
                         ) { track ->
                             TrackListItem(
@@ -122,7 +125,7 @@ fun FavoritesScreen(
             },
             text = {
                 Text(
-                    stringResource(R.string.delete_track_confirm, trackToDelete!!.trackName)
+                    stringResource(R.string.delete_fav_track_confirm, trackToDelete!!.trackName)
                 )
             },
             containerColor = MaterialTheme.colorScheme.background,
@@ -185,13 +188,30 @@ fun TrackListItem(
             modifier = Modifier.weight(0.85f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = track.trackName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = track.trackName,
+                    modifier = Modifier.weight(1f, fill = false),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (track.isExplicit) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Report,
+                        contentDescription = stringResource(R.string.explicit_track),
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = MyOrange
+                    )
+                }
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

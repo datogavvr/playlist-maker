@@ -23,11 +23,13 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Track
 import com.practicum.playlist_maker.ui.theme.MyLightGreen
+import com.practicum.playlist_maker.ui.theme.MyOrange
 import com.practicum.playlist_maker.ui.viewmodel.TrackDetailsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -198,13 +200,28 @@ fun TrackDetailsContent(
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_20)))
 
-        // название трека и исполнитель
-        Text(
-            text = track.trackName,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = track.trackName,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            if (track.isExplicit) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Filled.Report,
+                    contentDescription = stringResource(R.string.explicit_track),
+                    modifier = Modifier.size(24.dp),
+                    tint = MyOrange
+                )
+            }
+        }
 
         Text(
             text = track.artistName,
@@ -248,18 +265,21 @@ fun TrackDetailsContent(
                         Icons.Filled.Favorite
                     else
                         Icons.Filled.FavoriteBorder,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.add_to_favorite),
                     tint = Color.White
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.space_16)))
 
-        DetailRow(
-            title = stringResource(R.string.duration),
-            value = track.trackTime
-        )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_6))
+            ) {
+                DetailRow(title = stringResource(R.string.duration), value = track.trackTime)
+                DetailRow(title = "Жанр", value = track.genre ?: "Не указан")
+                DetailRow(title = "Дата релиза", value = track.releaseDate ?: "Не указана")
+            }
     }
 }
 

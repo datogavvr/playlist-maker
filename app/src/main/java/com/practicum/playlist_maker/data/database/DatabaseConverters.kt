@@ -17,7 +17,10 @@ fun TrackEntity.toDomain(
         trackTime = trackTime,
         image = image,
         favorite = playlistIds.contains(0L),
-        playlistId = playlistIds.toMutableList()
+        playlistId = playlistIds.toMutableList(),
+        genre = genre ?: "Не указан",
+        releaseDate = releaseDate ?: "Дата неизвестна",
+        isExplicit = isExplicit ?: false
     )
 }
 
@@ -28,7 +31,10 @@ fun Track.toEntity(): TrackEntity {
         artistName = artistName,
         trackTimeMillis = trackTimeMillis ?: 0L,
         trackTime = trackTime,
-        image = image
+        image = image,
+        genre = genre,
+        releaseDate = releaseDate,
+        isExplicit = isExplicit
     )
 }
 
