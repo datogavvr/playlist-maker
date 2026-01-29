@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import com.practicum.playlist_maker.creator.Creator
 import com.practicum.playlist_maker.ui.activity.MainScreen
 import com.practicum.playlist_maker.ui.screen.CreatePlaylistScreen
+import com.practicum.playlist_maker.ui.screen.EditPlaylistScreen
 import com.practicum.playlist_maker.ui.screen.FavoritesScreen
 import com.practicum.playlist_maker.ui.screen.PlaylistScreen
 import com.practicum.playlist_maker.ui.screen.PlaylistsScreen
@@ -118,21 +119,44 @@ fun PlaylistHost(navController: NavHostController) {
                 onTrackClick = { trackId ->
                     navController.navigate("${Screen.TRACK_DETAILS.name}/$trackId")
                 },
+                onShareClick = {
+                    Toast.makeText(context, "Поделиться", Toast.LENGTH_SHORT).show()
+                },
                 onEditClick = {
-                    Toast.makeText(context, "Редактирование", Toast.LENGTH_SHORT).show()
+                    navController.navigate("${Screen.EDIT_PLAYLIST.name}/$playlistId")
                 },
                 onDeleteClick = {
                     playlistViewModel.deletePlaylist {
                         navController.popBackStack()
                     }
                 },
-                onShareClick = {
-                    Toast.makeText(context, "Поделиться", Toast.LENGTH_SHORT).show()
-                },
                 onBack = { navController.popBackStack() }
             )
         }
 
+        // экран редактирования плейлиста
+        composable(
+            route = "${Screen.EDIT_PLAYLIST.name}/{playlistId}",
+            arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
+        ) { backStack ->
+            val playlistId = backStack.arguments?.getLong("playlistId") ?: 0L
+
+            val playlistsRepository = remember { Creator.getPlaylistsRepository() }
+            val tracksRepository = remember { Creator.getTracksRepository() }
+
+            val playlistViewModel: PlaylistViewModel = viewModel(
+                factory = PlaylistViewModel.Factory(
+                    playlistId,
+                    playlistsRepository,
+                    tracksRepository
+                )
+            )
+
+            EditPlaylistScreen(
+                viewModel = playlistViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
 
         // экран избранного
         composable(Screen.FAVORITES.name) {

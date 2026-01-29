@@ -2,6 +2,7 @@ package com.practicum.playlist_maker.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,10 +28,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.practicum.playlist_maker.R
 import com.practicum.playlist_maker.data.network.Track
+import com.practicum.playlist_maker.ui.theme.MyOrange
 import com.practicum.playlist_maker.ui.viewmodel.PlaylistViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,12 +42,13 @@ fun PlaylistScreen(
     modifier: Modifier = Modifier,
     playlistViewModel: PlaylistViewModel,
     onTrackClick: (Long) -> Unit,
+    onShareClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onShareClick: () -> Unit,
     onBack: () -> Unit
 ) {
     val playlist = playlistViewModel.playlist.collectAsState(initial = null).value
+    val tracks by playlistViewModel.tracks.collectAsState(initial = emptyList())
     val isLoading by playlistViewModel.isLoading.collectAsState()
     val context = LocalContext.current
 
@@ -61,13 +66,11 @@ fun PlaylistScreen(
         return
     }
 
-    val tracks = playlist.tracks
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isSheetOpen by remember { mutableStateOf(false) }
     var trackToDelete by remember { mutableStateOf<Track?>(null) }
 
-    val totalMinutes by playlistViewModel.totalMinutes.collectAsState()
+    val totalTime by playlistViewModel.totalTime.collectAsState()
     val trackCountText by playlistViewModel.trackCountText.collectAsState()
 
     Scaffold(
@@ -92,8 +95,8 @@ fun PlaylistScreen(
                 actions = {
                     IconButton(onClick = { isSheetOpen = true }) {
                         Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = null,
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.playlist_settings),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -135,7 +138,7 @@ fun PlaylistScreen(
             Spacer(Modifier.height(dimensionResource(R.dimen.padding_8)))
 
             Text(
-                "$totalMinutes мин • $trackCountText",
+                "$totalTime • $trackCountText",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -174,35 +177,57 @@ fun PlaylistScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_16))
+                    .padding(
+                        vertical = dimensionResource(R.dimen.padding_12),
+                        horizontal = dimensionResource(R.dimen.padding_16)
+                    )
             ) {
                 Text(playlist.playlistName, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
 
                 Text(
-                    "$totalMinutes мин • $trackCountText",
+                    "$totalTime • $trackCountText",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(Modifier.height(dimensionResource(R.dimen.padding_20)))
-
-
-                SheetButton(stringResource(R.string.share_playlist)) { isSheetOpen = false; onShareClick() }
-
-                SheetButton(stringResource(R.string.edit_info)) { isSheetOpen = false; onEditClick() }
-
-                val deletePlaylistToastText = stringResource(R.string.delete_playlist_toast, playlist.playlistName)
-                SheetButton(
-                    stringResource(R.string.delete_playlist),
-                    color = Color.Red
-                ) {
-                    isSheetOpen = false
-                    Toast.makeText(context, deletePlaylistToastText, Toast.LENGTH_SHORT).show()
-                    playlistViewModel.deletePlaylist()
-                    onBack()
+                if (playlist.description.isNotEmpty()) {
+                    Spacer(Modifier.height(dimensionResource(R.dimen.padding_12)))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(dimensionResource(R.dimen.cover_corner_radius))
+                            )
+                            .padding(dimensionResource(R.dimen.padding_12))
+                    ) {
+                        Text(
+                            text = playlist.description,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
-                Spacer(Modifier.height(dimensionResource(R.dimen.padding_20)))
             }
+
+            SheetButton(text = stringResource(R.string.share_playlist)) { isSheetOpen = false; onShareClick() }
+
+            SheetButton(text = stringResource(R.string.edit_info)) { isSheetOpen = false; onEditClick() }
+
+            val deletePlaylistToastText = stringResource(R.string.delete_playlist_toast, playlist.playlistName)
+            SheetButton(
+                text = stringResource(R.string.delete_playlist),
+                color = MaterialTheme.colorScheme.error
+            ) {
+                isSheetOpen = false
+                Toast.makeText(context, deletePlaylistToastText, Toast.LENGTH_SHORT).show()
+                playlistViewModel.deletePlaylist()
+                onBack()
+            }
+            Spacer(Modifier.height(dimensionResource(R.dimen.padding_20)))
         }
     }
 
@@ -274,13 +299,30 @@ fun PlaylistTrackItem(
             modifier = Modifier.weight(0.85f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = track.trackName,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = track.trackName,
+                    modifier = Modifier.weight(1f, fill = false),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                if (track.isExplicit) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Report,
+                        contentDescription = stringResource(R.string.explicit_track),
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = MyOrange
+                    )
+                }
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -321,7 +363,8 @@ fun PlaylistTrackItem(
 fun SheetButton(
     text: String,
     color: Color = MaterialTheme.colorScheme.onSurface,
-    onClick: () -> Unit) {
+    onClick: () -> Unit
+) {
     Text(
         text = text,
         color = color,
@@ -330,6 +373,9 @@ fun SheetButton(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = dimensionResource(R.dimen.padding_12))
+            .padding(
+                vertical = dimensionResource(R.dimen.padding_12),
+                horizontal = dimensionResource(R.dimen.padding_16)
+            )
     )
 }

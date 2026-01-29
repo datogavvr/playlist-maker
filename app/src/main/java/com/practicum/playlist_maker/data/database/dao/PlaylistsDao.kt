@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.practicum.playlist_maker.data.database.entity.PlaylistEntity
 import com.practicum.playlist_maker.data.database.relation.PlaylistWithTracks
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,9 @@ interface PlaylistsDao {
     @Transaction
     @Query("SELECT * FROM playlists WHERE isSystem = 1 LIMIT 1")
     fun getFavoritePlaylist(): Flow<PlaylistWithTracks?>
+
+    @Update
+    suspend fun updatePlaylist(playlist: PlaylistEntity)
 
     @Query("DELETE FROM playlists WHERE id = :id")
     suspend fun deletePlaylistById(id: Long)

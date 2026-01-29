@@ -20,6 +20,9 @@ interface PlaylistsRepository {
     // добавление плейлиста
     suspend fun addNewPlaylist(name: String, description: String, coverUri: String?)
 
+    // обновление плейлиста
+    suspend fun updatePlaylist(playlistId: Long, playlistName: String, description: String?, coverUri: String?)
+
     // удаление плейлиста по id
     suspend fun deletePlaylistById(id: Long)
 
@@ -35,6 +38,8 @@ interface TracksRepository {
     fun getTrackByNameAndArtist(track: Track): Flow<Track?>
 
     fun getTrackById(trackId: Long): Flow<Track?>
+
+    fun getTracksByPlaylistId(playlistId: Long): Flow<List<Track>>
 
     fun getFavoriteTracks(): Flow<List<Track>>
 
